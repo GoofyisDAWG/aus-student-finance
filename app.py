@@ -873,24 +873,149 @@ by employers who don't know your status, which means you're probably owed a refu
                 "この会計年度内にオーストラリア滞在日数がありません。日付を確認してください。"
             )
 
-    income = st.number_input(
-        "Total Australian income this financial year (AUD)"
-        if lang == "en" else "この会計年度のオーストラリアでの総収入（AUD）",
-        min_value=0, max_value=300000, value=28000, step=500,
-        help="Include wages, tips, cash jobs — everything you earned in Australia."
-             if lang == "en" else
-             "賃金、チップ、現金バイトなど、オーストラリアで得たすべての収入を含めてください。",
-    )
+    # ── Step 2: income breakdown ──────────────────────────────────────────────
+    st.markdown("### " + ("Step 2 — Income" if lang == "en" else "ステップ2 — 収入"))
 
-    tax_withheld = st.number_input(
-        "Tax already withheld by your employer (AUD) — check your payslips or myGov income statement"
-        if lang == "en" else
-        "雇用主がすでに源泉徴収した税額（AUD）— 給与明細またはmyGovの所得明細を確認",
-        min_value=0, max_value=150000, value=6000, step=100,
-        help="This is the PAYG tax deducted from your wages each pay period."
-             if lang == "en" else
-             "これは毎回の給与から差し引かれたPAYG税です。",
-    )
+    ic1, ic2 = st.columns(2)
+    with ic1:
+        payg_income = st.number_input(
+            "💼 PAYG wages (jobs with tax withheld)" if lang == "en"
+            else "💼 PAYG賃金（源泉徴収あり）",
+            min_value=0, max_value=300000, value=28000, step=500,
+            help="Regular employment where your employer deducts tax from each pay."
+                 if lang == "en" else "雇用主が毎回の給与から税金を差し引く通常の雇用。",
+        )
+        tax_withheld = st.number_input(
+            "Tax withheld from above (AUD) — from payslips or myGov"
+            if lang == "en" else
+            "上記から源泉徴収された税額（AUD）— 給与明細またはmyGovで確認",
+            min_value=0, max_value=150000, value=6000, step=100,
+            help="Total PAYG tax deducted across all your payslips this financial year."
+                 if lang == "en" else "この会計年度の全給与明細から差し引かれたPAYG税の合計。",
+        )
+    with ic2:
+        abn_income = st.number_input(
+            "🛵 ABN / gig income (Uber Eats, DoorDash, Airtasker, freelance)"
+            if lang == "en" else
+            "🛵 ABN・ギグ収入（Uber Eats・DoorDash・Airtasker・フリーランス）",
+            min_value=0, max_value=300000, value=0, step=500,
+            help="Income earned with an ABN where NO tax is withheld. You pay this yourself at tax time."
+                 if lang == "en" else
+                 "ABNで得た収入で税金が源泉徴収されていないもの。確定申告時に自分で納税します。",
+        )
+        if abn_income > 0:
+            st.markdown(
+                "<div class='warn-box' style='font-size:12px;padding:8px 12px'>"
+                + ("⚠️ No tax withheld on ABN income — expect a tax bill on this portion."
+                   if lang == "en" else
+                   "⚠️ ABN収入には源泉徴収なし — この部分の税金は自分で支払います。")
+                + "</div>",
+                unsafe_allow_html=True,
+            )
+
+    total_gross_income = payg_income + abn_income
+
+    # ── Step 3: deductions ────────────────────────────────────────────────────
+    st.markdown("### " + ("Step 3 — Deductions (reduces your tax)" if lang == "en" else "ステップ3 — 控除（税金を下げる）"))
+
+    if lang == "en":
+        st.caption("These are work-related expenses you can claim to reduce your taxable income. Only include what you genuinely spent for work — the ATO can audit deductions.")
+    else:
+        st.caption("仕事に関連した経費で課税所得を下げることができます。実際に仕事のために使った費用のみ申告してください。")
+
+    # ATO cents-per-km rates by FY
+    CPK_RATES = {"FY2025-26": 0.91, "FY2024-25": 0.88, "FY2023-24": 0.85, "FY2022-23": 0.78}
+    cpk_rate = CPK_RATES.get(fy, 0.88)
+
+    with st.expander("🚗 " + ("Vehicle / delivery km" if lang == "en" else "車・配達の走行距離"), expanded=(abn_income > 0)):
+        if lang == "en":
+            st.caption(f"ATO rate for {fy}: **{cpk_rate} cents per km** (up to 5,000 km max). For Uber Eats, DoorDash, or any work driving.")
+        else:
+            st.caption(f"{fy}のATOレート：**1kmあたり{cpk_rate}セント**（最大5,000km）。Uber Eats・DoorDash・業務運転すべて対象。")
+        work_km = st.number_input(
+            "Work-related km driven this year" if lang == "en" else "今年の業務走行距離（km）",
+            min_value=0, max_value=5000, value=0, step=50,
+        )
+        vehicle_deduction = min(work_km, 5000) * cpk_rate
+        if work_km > 0:
+            st.success(f"{'Vehicle deduction' if lang == 'en' else '車両控除'}: A${vehicle_deduction:,.2f}")
+
+    with st.expander("📱 " + ("Phone & internet" if lang == "en" else "スマホ・インターネット")):
+        if lang == "en":
+            st.caption("Claim the work-use % of your total annual phone/internet bill. For Uber Eats: delivery app use, maps, customer calls = often 60–80%.")
+        else:
+            st.caption("年間のスマホ・インターネット料金の業務使用割合を申請。Uber Eats：アプリ・地図・顧客対応 = 通常60〜80%。")
+        ph1, ph2 = st.columns(2)
+        with ph1:
+            phone_total = st.number_input(
+                "Annual phone + internet bill (AUD)" if lang == "en" else "年間スマホ・通信費合計（AUD）",
+                min_value=0, max_value=5000, value=0, step=50,
+            )
+        with ph2:
+            phone_work_pct = st.slider(
+                "Work use %" if lang == "en" else "業務使用割合 %",
+                min_value=0, max_value=100, value=50, step=5,
+            )
+        phone_deduction = phone_total * phone_work_pct / 100
+        if phone_total > 0:
+            st.success(f"{'Phone deduction' if lang == 'en' else '通信費控除'}: A${phone_deduction:,.2f}")
+
+    with st.expander("🏠 " + ("Home office" if lang == "en" else "在宅勤務")):
+        if lang == "en":
+            st.caption(f"ATO fixed rate method: **67 cents per hour** worked from home. Covers electricity, internet, stationery. Applies from FY2022-23 onwards.")
+        else:
+            st.caption(f"ATO固定レート方式：在宅勤務**1時間あたり67セント**。電気・インターネット・文具代をカバー。FY2022-23以降適用。")
+        home_hours = st.number_input(
+            "Hours worked from home this year" if lang == "en" else "今年の在宅勤務時間数",
+            min_value=0, max_value=3000, value=0, step=10,
+        )
+        home_deduction = home_hours * 0.67
+        if home_hours > 0:
+            st.success(f"{'Home office deduction' if lang == 'en' else '在宅勤務控除'}: A${home_deduction:,.2f}")
+
+    with st.expander("🛍️ " + ("Equipment, uniform & other" if lang == "en" else "機器・制服・その他")):
+        if lang == "en":
+            st.caption("Work equipment under $300 can be claimed in full immediately. Over $300 is depreciated. Insulated delivery bags, safety shoes, uniforms all count.")
+        else:
+            st.caption("$300未満の業務機器はすぐに全額申請可能。$300以上は減価償却。保温バッグ・安全靴・制服もすべて対象。")
+        eq1, eq2 = st.columns(2)
+        with eq1:
+            equipment_deduction = st.number_input(
+                "Work equipment & tools (AUD)" if lang == "en" else "業務機器・道具（AUD）",
+                min_value=0, max_value=10000, value=0, step=50,
+                help="Laptop, tools, safety gear, insulated delivery bag, helmet, etc."
+                     if lang == "en" else "PC・道具・安全用品・保温バッグ・ヘルメットなど。",
+            )
+        with eq2:
+            uniform_deduction = st.number_input(
+                "Uniform / laundry (AUD)" if lang == "en" else "制服・洗濯費（AUD）",
+                min_value=0, max_value=2000, value=0, step=10,
+                help="Compulsory uniforms or protective clothing. Laundry costs at $1/load."
+                     if lang == "en" else "義務付けられた制服または保護服。洗濯費は1回$1。",
+            )
+        other_deduction = st.number_input(
+            "Other work-related deductions (AUD)" if lang == "en" else "その他の業務関連控除（AUD）",
+            min_value=0, max_value=10000, value=0, step=50,
+            help="Union fees, professional memberships, self-education directly related to current job."
+                 if lang == "en" else "組合費・専門職会費・現在の仕事に直接関連する自己啓発費。",
+        )
+
+    total_deductions = vehicle_deduction + phone_deduction + home_deduction + equipment_deduction + uniform_deduction + other_deduction
+    taxable_income   = max(0.0, total_gross_income - total_deductions)
+
+    if total_deductions > 0:
+        st.markdown(
+            f"<div class='card card-green' style='padding:10px 16px'>"
+            f"<span style='color:#8b949e;font-size:12px'>{'Total deductions' if lang == 'en' else '控除合計'}</span> "
+            f"<b style='color:#3fb950;font-size:18px'>−A${total_deductions:,.0f}</b>"
+            f"<span style='color:#8b949e;font-size:12px;margin-left:16px'>"
+            f"{'Taxable income' if lang == 'en' else '課税所得'}: A${taxable_income:,.0f}</span>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+
+    # ── Step 4: other settings ────────────────────────────────────────────────
+    st.markdown("### " + ("Step 4 — Final settings" if lang == "en" else "ステップ4 — その他の設定"))
 
     col_c, col_d = st.columns(2)
     with col_c:
@@ -909,55 +1034,73 @@ by employers who don't know your status, which means you're probably owed a refu
         )
     with col_d:
         has_tfn = st.checkbox(
-            "You gave your employer your Tax File Number (TFN)"
-            if lang == "en" else "雇用主にTFN（税務番号）を提供した",
+            "You provided your TFN to all employers"
+            if lang == "en" else "全雇用主にTFN（税務番号）を提供した",
             value=True,
-            help="Without a TFN, employers must withhold tax at the top rate (47%). "
-                 "If you didn't provide it, your withholding may be very high."
+            help="Without a TFN, employers must withhold at 47% (top rate). "
+                 "No-TFN withholding often creates a large refund."
                  if lang == "en" else
-                 "TFNがない場合、雇用主は最高税率（47%）で源泉徴収しなければなりません。",
+                 "TFNなしの場合、雇用主は47%（最高税率）で源泉徴収。大きな還付が発生することがあります。",
+        )
+    if not has_tfn and tax_withheld < payg_income * 0.40:
+        st.markdown(
+            "<div class='warn-box' style='font-size:12px;padding:8px 12px'>"
+            + ("⚠️ Without a TFN, your employer should have withheld ~47%. "
+               "Your entered withheld amount looks low — double-check your payslips."
+               if lang == "en" else
+               "⚠️ TFNなしの場合、雇用主は約47%を源泉徴収するはずです。"
+               "入力した源泉徴収額が少ないようです — 給与明細を再確認してください。")
+            + "</div>",
+            unsafe_allow_html=True,
         )
 
     st.markdown("---")
 
     # ── calculations ──────────────────────────────────────────────────────────
     if tax_status == "resident":
-        gross_tax = calc_resident_tax(income)
-        lito      = calc_lito(income)
+        gross_tax = calc_resident_tax(taxable_income)
+        lito      = calc_lito(taxable_income)
     elif tax_status == "foreign":
-        gross_tax = calc_foreign_tax(income)
+        gross_tax = calc_foreign_tax(taxable_income)
         lito      = 0.0
     else:
-        gross_tax = calc_whm_tax(income)
+        gross_tax = calc_whm_tax(taxable_income)
         lito      = 0.0
 
-    medicare  = 0.0 if medicare_exempt else income * 0.02
+    medicare  = 0.0 if medicare_exempt else taxable_income * 0.02
     tax_owed  = max(0.0, gross_tax - lito + medicare)
     balance   = tax_withheld - tax_owed   # positive = refund, negative = bill
 
     st.markdown("### " + ("Your Result" if lang == "en" else "計算結果"))
 
-    r1, r2, r3 = st.columns(3)
+    r1, r2, r3, r4 = st.columns(4)
     r1.markdown(
         f"<div class='card card-blue'>"
-        f"<div class='label-sm'>{'Gross tax on income' if lang == 'en' else '収入への総税額'}</div>"
-        f"<div class='big-number' style='color:#58a6ff'>${gross_tax:,.0f}</div>"
+        f"<div class='label-sm'>{'Gross income' if lang == 'en' else '総収入'}</div>"
+        f"<div style='font-size:22px;font-weight:800;color:#58a6ff'>${total_gross_income:,.0f}</div>"
         f"</div>",
         unsafe_allow_html=True,
     )
     r2.markdown(
-        f"<div class='card card-yellow'>"
-        f"<div class='label-sm'>{'LITO offset applied' if lang == 'en' else '低所得税オフセット'}</div>"
-        f"<div class='big-number' style='color:#d29922'>−${lito:,.0f}</div>"
-        f"<div style='color:#8b949e;font-size:11px'>{'residents only' if lang == 'en' else '居住者のみ'}</div>"
+        f"<div class='card card-green'>"
+        f"<div class='label-sm'>{'Deductions' if lang == 'en' else '控除'}</div>"
+        f"<div style='font-size:22px;font-weight:800;color:#3fb950'>−${total_deductions:,.0f}</div>"
         f"</div>",
         unsafe_allow_html=True,
     )
     r3.markdown(
-        f"<div class='card {'card-green' if balance >= 0 else 'card-red'}'>"
-        f"<div class='label-sm'>{'Tax owed this year' if lang == 'en' else '今年の税額'}</div>"
-        f"<div class='big-number' style='color:{'#3fb950' if balance >= 0 else '#f85149'}'>${tax_owed:,.0f}</div>"
-        f"<div style='color:#8b949e;font-size:11px'>{'after offsets' if lang == 'en' else 'オフセット後'}</div>"
+        f"<div class='card card-yellow'>"
+        f"<div class='label-sm'>{'LITO offset' if lang == 'en' else 'LITOオフセット'}</div>"
+        f"<div style='font-size:22px;font-weight:800;color:#d29922'>−${lito:,.0f}</div>"
+        f"<div style='color:#8b949e;font-size:10px'>{'residents only' if lang == 'en' else '居住者のみ'}</div>"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
+    r4.markdown(
+        f"<div class='card card-blue'>"
+        f"<div class='label-sm'>{'Tax owed' if lang == 'en' else '税額'}</div>"
+        f"<div style='font-size:22px;font-weight:800;color:#58a6ff'>${tax_owed:,.0f}</div>"
+        f"<div style='color:#8b949e;font-size:10px'>{'after offsets' if lang == 'en' else 'オフセット後'}</div>"
         f"</div>",
         unsafe_allow_html=True,
     )
@@ -971,10 +1114,9 @@ by employers who don't know your status, which means you're probably owed a refu
             f"<div class='label-sm'>{'🎉 Estimated tax refund' if lang == 'en' else '🎉 推定税金還付額'}</div>"
             f"<div style='font-size:52px;font-weight:900;color:#3fb950'>${balance:,.0f}</div>"
             f"<div style='color:#8b949e;font-size:13px'>"
-            + ("You paid ${:,.0f} but only owed ${:,.0f}. The ATO owes you the difference."
-               .format(tax_withheld, tax_owed)
+            + (f"You withheld ${tax_withheld:,.0f} · Tax owed ${tax_owed:,.0f} · Deductions saved you ${total_deductions:,.0f} in taxable income"
                if lang == "en" else
-               "源泉徴収額${:,.0f} − 税額${:,.0f} = 還付額".format(tax_withheld, tax_owed))
+               f"源泉徴収額${tax_withheld:,.0f} · 税額${tax_owed:,.0f} · 控除で課税所得${total_deductions:,.0f}を削減")
             + f"</div></div>",
             unsafe_allow_html=True,
         )
@@ -984,10 +1126,11 @@ by employers who don't know your status, which means you're probably owed a refu
             f"<div class='label-sm'>{'⚠️ Estimated amount owing' if lang == 'en' else '⚠️ 追加納税額'}</div>"
             f"<div style='font-size:52px;font-weight:900;color:#f85149'>${abs(balance):,.0f}</div>"
             f"<div style='color:#8b949e;font-size:13px'>"
-            + ("You owed ${:,.0f} but only had ${:,.0f} withheld. You'll need to pay the difference."
-               .format(tax_owed, tax_withheld)
+            + (f"Tax owed ${tax_owed:,.0f} · Only ${tax_withheld:,.0f} withheld"
+               + (f" · Your ABN income of ${abn_income:,.0f} had no tax withheld" if abn_income > 0 else "")
                if lang == "en" else
-               "税額${:,.0f} − 源泉徴収額${:,.0f} = 追加納税額".format(tax_owed, tax_withheld))
+               f"税額${tax_owed:,.0f} · 源泉徴収額${tax_withheld:,.0f}"
+               + (f" · ABN収入${abn_income:,.0f}は源泉徴収なし" if abn_income > 0 else ""))
             + f"</div></div>",
             unsafe_allow_html=True,
         )
@@ -997,7 +1140,15 @@ by employers who don't know your status, which means you're probably owed a refu
     # ── full breakdown table ──────────────────────────────────────────────────
     with st.expander("📊 " + ("Full breakdown" if lang == "en" else "詳細内訳")):
         rows_en = [
-            ("Gross income", f"${income:,.0f}"),
+            ("PAYG wages (employer withholds tax)", f"${payg_income:,.0f}"),
+            ("ABN / gig income (no tax withheld)", f"${abn_income:,.0f}"),
+            ("Total gross income", f"${total_gross_income:,.0f}"),
+            ("Vehicle deduction", f"−${vehicle_deduction:,.2f}"),
+            ("Phone & internet deduction", f"−${phone_deduction:,.2f}"),
+            ("Home office deduction", f"−${home_deduction:,.2f}"),
+            ("Equipment & uniform deduction", f"−${equipment_deduction + uniform_deduction:,.2f}"),
+            ("Other deductions", f"−${other_deduction:,.2f}"),
+            ("Taxable income", f"${taxable_income:,.0f}"),
             ("Tax status", {"resident": "Australian resident", "foreign": "Foreign resident", "whm": "Working Holiday Maker"}[tax_status]),
             ("Gross income tax", f"${gross_tax:,.0f}"),
             ("Low Income Tax Offset (LITO)", f"−${lito:,.0f}"),
@@ -1007,7 +1158,15 @@ by employers who don't know your status, which means you're probably owed a refu
             ("Result", f"{'REFUND' if balance >= 0 else 'OWING'}: ${abs(balance):,.0f}"),
         ]
         rows_ja = [
-            ("総収入", f"${income:,.0f}"),
+            ("PAYG賃金（源泉徴収あり）", f"${payg_income:,.0f}"),
+            ("ABN・ギグ収入（源泉徴収なし）", f"${abn_income:,.0f}"),
+            ("総収入", f"${total_gross_income:,.0f}"),
+            ("車両控除", f"−${vehicle_deduction:,.2f}"),
+            ("スマホ・通信費控除", f"−${phone_deduction:,.2f}"),
+            ("在宅勤務控除", f"−${home_deduction:,.2f}"),
+            ("機器・制服控除", f"−${equipment_deduction + uniform_deduction:,.2f}"),
+            ("その他控除", f"−${other_deduction:,.2f}"),
+            ("課税所得", f"${taxable_income:,.0f}"),
             ("税務ステータス", {"resident": "オーストラリア居住者", "foreign": "外国居住者", "whm": "ワーキングホリデー"}[tax_status]),
             ("総所得税", f"${gross_tax:,.0f}"),
             ("低所得税オフセット（LITO）", f"−${lito:,.0f}"),
