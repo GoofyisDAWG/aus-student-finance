@@ -2362,68 +2362,105 @@ Every savings account in Australia has **two rates:**
     # ── suburb search ─────────────────────────────────────────────────────────
     suburb_input = st.text_input(
         "🔍 " + ("Search by suburb or address" if lang == "en" else "郊外・住所で検索"),
-        placeholder="e.g. Toowong, South Bank, St Lucia..." if lang == "en" else "例：トーウォン、サウスバンク、セントルシア...",
+        placeholder="e.g. Toowong, South Bank, St Lucia, Ipswich..." if lang == "en" else "例：トーウォン、サウスバンク、セントルシア、イプスウィッチ...",
         help="We do not store or save your address." if lang == "en" else "住所・番地は保存されません。",
     )
     st.caption(
         "🔒 Your address is not stored or saved." if lang == "en" else "🔒 入力した住所・番地は保存されません。"
     )
-    if suburb_input.strip():
-        maps_query = suburb_input.strip().replace(" ", "+") + "+Brisbane+bank+branch"
-        maps_url = f"https://www.google.com/maps/search/{maps_query}"
-        st.markdown(
-            f"[🗺️ {'Search Google Maps for bank branches near' if lang == 'en' else '近くの銀行支店をGoogle マップで検索'} **{suburb_input.strip()}**]({maps_url})",
-        )
-        st.caption(
-            "Opens Google Maps in a new tab — you can filter by bank name (CommBank, NAB, ANZ, Westpac)."
-            if lang == "en" else
-            "Google マップが開きます。銀行名（CommBank・NAB・ANZ・Westpac）で絞り込めます。"
-        )
-    st.markdown("")
 
     BRISBANE_AREAS = {
         "🏙️ CBD / City" if lang == "en" else "🏙️ CBD・シティ": {
             "desc_en": "All major banks have branches here. Best option if you're arriving and need to open an account on day one.",
             "desc_ja": "すべての主要銀行が支店を持つ。到着初日に口座を開設する場合の最適場所。",
             "banks": ["CommBank ✅", "NAB ✅", "ANZ ✅", "Westpac ✅", "ING ❌ (digital only)", "Up ❌ (digital only)"],
+            "keywords": ["cbd", "city", "brisbane city", "spring hill", "fortitude valley", "valley", "new farm", "teneriffe"],
         },
         "🎨 South Bank / West End" if lang == "en" else "🎨 サウスバンク・ウエストエンド": {
             "desc_en": "Popular student and backpacker area. CommBank and ANZ nearby. West End has many international students.",
             "desc_ja": "留学生・バックパッカーに人気のエリア。CommBankとANZが近い。ウエストエンドは留学生が多い。",
             "banks": ["CommBank ✅", "ANZ ✅", "NAB (CBD — 10min by bus)"],
+            "keywords": ["south bank", "southbank", "west end", "westend", "highgate hill", "woolloongabba", "east brisbane"],
         },
         "🎓 St Lucia / Toowong (UQ area)" if lang == "en" else "🎓 セントルシア・トゥーウォン（UQエリア）": {
             "desc_en": "University of Queensland campus area. CommBank, NAB, ANZ all have Toowong branches. UQ campus also has CommBank ATMs.",
             "desc_ja": "クイーンズランド大学エリア。CommBank・NAB・ANZがトゥーウォンに支店。UQキャンパス内にもCommBank ATMあり。",
             "banks": ["CommBank ✅ (Toowong Village)", "NAB ✅ (Toowong)", "ANZ ✅ (Toowong)"],
+            "keywords": ["st lucia", "toowong", "auchenflower", "taringa", "uq", "university of queensland", "chapel hill"],
         },
         "🏫 Kelvin Grove (QUT area)" if lang == "en" else "🏫 ケルビングローブ（QUTエリア）": {
             "desc_en": "QUT Kelvin Grove campus. Limited branches in immediate area — CBD is a short bus ride away.",
             "desc_ja": "QUTケルビングローブキャンパス。近隣の支店は限られる — バスでCBDへ。",
             "banks": ["CommBank ATM on campus", "Full branches in CBD (15min)"],
+            "keywords": ["kelvin grove", "red hill", "paddington", "qut", "herston", "bowen hills"],
         },
         "🛒 Chermside / North Brisbane" if lang == "en" else "🛒 チャームサイド・ノースブリスベン": {
             "desc_en": "Chermside Shopping Centre has all major banks. Popular residential area for students.",
             "desc_ja": "チャームサイドショッピングセンターに主要銀行すべてあり。学生に人気の住宅エリア。",
             "banks": ["CommBank ✅", "NAB ✅", "ANZ ✅", "Westpac ✅"],
+            "keywords": ["chermside", "aspley", "geebung", "stafford", "everton park", "albany creek", "bracken ridge", "zillmere"],
         },
         "🛍️ Garden City / Mt Gravatt (South Brisbane)" if lang == "en" else "🛍️ ガーデンシティ・マウントグラバット（サウスブリスベン）": {
             "desc_en": "Garden City Shopping Centre has CommBank, NAB, ANZ. Popular area for Griffith University students.",
             "desc_ja": "ガーデンシティに CommBank・NAB・ANZあり。グリフィス大学の学生に人気のエリア。",
             "banks": ["CommBank ✅", "NAB ✅", "ANZ ✅", "Westpac ✅"],
+            "keywords": ["mount gravatt", "mt gravatt", "garden city", "upper mount gravatt", "griffith", "nathan", "eight mile plains", "carindale", "coorparoo", "camp hill"],
         },
         "🏬 Indooroopilly (West Brisbane)" if lang == "en" else "🏬 インドゥーロピリー（ウエストブリスベン）": {
             "desc_en": "Indooroopilly Shopping Centre has CommBank, ANZ, Westpac. Good area for UQ students living west of CBD.",
             "desc_ja": "インドゥーロピリーショッピングセンターにCommBank・ANZ・Westpacあり。CBD西側に住むUQ学生向け。",
             "banks": ["CommBank ✅", "ANZ ✅", "Westpac ✅"],
+            "keywords": ["indooroopilly", "chelmer", "corinda", "oxley", "kenmore", "fig tree pocket", "graceville", "sherwood"],
         },
     }
 
+    # match suburb input to area cards
+    suburb_q = suburb_input.strip().lower()
+    matched_areas = {}
+    if suburb_q:
+        for area, data in BRISBANE_AREAS.items():
+            if any(suburb_q in kw or kw in suburb_q for kw in data["keywords"]):
+                matched_areas[area] = data
+
+    if suburb_q:
+        loc = suburb_input.strip()
+        loc_plus = loc.replace(" ", "+")
+        if matched_areas:
+            st.success(
+                f"✅ {'Found area match for' if lang == 'en' else '一致エリアが見つかりました：'} **{loc}** — {'see highlighted card below' if lang == 'en' else '下のカードを確認してください'}"
+            )
+        else:
+            st.info(
+                f"{'No saved area card for' if lang == 'en' else 'このエリアの情報はまだありませんが、Google マップで直接検索できます：'} **{loc}**"
+                + (" — search Google Maps directly below:" if lang == "en" else "")
+            )
+            # per-bank Maps links as fallback
+            st.markdown("**" + ("Find a branch near you:" if lang == "en" else "近くの支店を探す：") + "**")
+            for bank, color in [("CommBank", "#f5a623"), ("NAB", "#e63946"), ("ANZ", "#2196f3"), ("Westpac", "#d32f2f")]:
+                maps_url = f"https://www.google.com/maps/search/{bank}+near+{loc_plus}+Queensland"
+                st.markdown(f"- [🗺️ {bank} near {loc}]({maps_url})")
+            st.caption(
+                "Opens Google Maps — shows real branch locations with hours and directions."
+                if lang == "en" else
+                "Google マップが開き、実際の支店・営業時間・道順が確認できます。"
+            )
+        st.markdown("")
+
+    # render area cards — highlighted if matched, dimmed if searching with no match
+    show_all = not suburb_q or not matched_areas
     for area, data in BRISBANE_AREAS.items():
         desc = data["desc_ja"] if lang == "ja" else data["desc_en"]
         banks_str = " · ".join(data["banks"])
+        is_match = area in matched_areas
+        if suburb_q and not matched_areas:
+            opacity = "0.45"
+        elif suburb_q and not is_match:
+            opacity = "0.3"
+        else:
+            opacity = "1"
+        border = "2px solid #3fb950" if is_match else "1px solid transparent"
         st.markdown(
-            f"<div class='card card-blue' style='padding:12px 16px;margin:6px 0'>"
+            f"<div class='card card-blue' style='padding:12px 16px;margin:6px 0;opacity:{opacity};border:{border}'>"
             f"<b style='color:#e6edf3'>{area}</b><br>"
             f"<span style='color:#8b949e;font-size:12px'>{desc}</span><br>"
             f"<span style='font-size:12px;color:#c9d1d9;margin-top:4px;display:block'>{banks_str}</span>"
