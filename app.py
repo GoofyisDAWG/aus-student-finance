@@ -282,7 +282,7 @@ Free, bilingual EN/JA, no sign-up needed.
          "就労権利",
          "Know your rights — hours, pay rates, entitlements by visa type.",
          "就労権を知る — ビザ別の時間・賃金・権利。",
-         False, c2),
+         True, c2),
     ]
     for icon, title_en, title_ja, desc_en, desc_ja, live, col in tools:
         title = title_ja if lang == "ja" else title_en
@@ -1813,14 +1813,299 @@ Qualifying work includes: farm work, fruit picking, fishing, mining, constructio
     )
 
 # ══════════════════════════════════════════════════════════════════════════════
+#  WORK RIGHTS
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "📋 Work Rights":
+
+    st.markdown("## 📋 " + ("Work Rights in Australia" if lang == "en" else "オーストラリアでの就労権利"))
+
+    if lang == "en":
+        st.markdown("""
+**Every worker in Australia has rights — regardless of visa type, English ability, or whether you're casual, part-time, or full-time.**
+
+Wage theft is common with international students and WHMs. Many employers underpay because they assume you don't know your rights. This page exists to fix that.
+""")
+    else:
+        st.markdown("""
+**オーストラリアのすべての労働者には権利があります — ビザの種類、英語力、雇用形態（カジュアル・パート・フルタイム）に関係なく。**
+
+留学生やWHMへの賃金未払いは一般的です。多くの雇用主はあなたが権利を知らないと思って低賃金を払います。このページはそれを解決するために作られました。
+""")
+
+    st.markdown("---")
+
+    # ── your visa rights ──────────────────────────────────────────────────────
+    st.markdown("### " + ("Your visa — what you can do" if lang == "en" else "あなたのビザ — できること"))
+
+    VISA_RIGHTS = {
+        "student_500": {
+            "title_en": "🎓 Student visa (subclass 500)",
+            "title_ja": "🎓 学生ビザ（サブクラス500）",
+            "rules_en": [
+                ("⏰ Hour limit during semester", "**48 hours per fortnight** (2 weeks) while your course is in session. There is no daily limit — you could work 48 hours in one week if you work 0 the next."),
+                ("✅ No limit in holidays", "**Unlimited hours** during official course breaks and holiday periods. Check your institution's academic calendar."),
+                ("👨‍👩‍👧 Family members", "Your spouse/de-facto on a secondary student visa can also work up to 48 hrs/fortnight. Dependent children have no restriction."),
+                ("💰 Super entitlements", "From your **very first shift**. Every employer must pay super on top of your wages. This is separate from your wages — not included in your hourly rate."),
+                ("🚫 Cannot do", "You cannot work before your course starts (unless specific conditions on your visa grant). Check your visa grant notice."),
+            ],
+            "rules_ja": [
+                ("⏰ 学期中の時間制限", "授業期間中は**2週間で48時間まで**。1日の上限はなし — 1週目に48時間、2週目0時間でもOK。"),
+                ("✅ 休暇中は無制限", "公式の授業休暇・休学期間中は**時間無制限**。大学のアカデミックカレンダーを確認してください。"),
+                ("👨‍👩‍👧 家族の場合", "副次的な学生ビザを持つ配偶者・事実婚パートナーも2週間48時間まで就労可能。扶養子供は制限なし。"),
+                ("💰 スーパー権利", "**初日のシフトから**。すべての雇用主は給与に加えてスーパーを支払う義務があります。これは時給には含まれません。"),
+                ("🚫 できないこと", "コース開始前の就労は原則不可（ビザ許可通知に特別条件がある場合を除く）。"),
+            ],
+            "card": "card-blue",
+        },
+        "whm_417": {
+            "title_en": "🎒 Working Holiday visa (subclass 417)",
+            "title_ja": "🎒 ワーキングホリデービザ（サブクラス417）",
+            "rules_en": [
+                ("⏰ Hour limit", "**No hour limit** — you can work full-time, overtime, whatever hours you agree with your employer."),
+                ("⏱️ 6-month employer limit", "You can only work for the **same employer for 6 months**. After that, you must move to a different employer. Use the WHM Employer Tracker on this site."),
+                ("🌾 Second year visa", "Complete **88 days** of specified regional work (agriculture, fishing, mining, construction) to qualify for a second-year visa."),
+                ("🏆 Third year visa", "Complete a further **6 months** of specified regional work in a designated area to qualify for a third-year visa."),
+                ("💰 Super entitlements", "Full super entitlements from day one. Claim it back via DASP when you leave — use the Super Calculator on this site."),
+                ("🚫 Cannot do", "Cannot study for more than 4 months in total on this visa."),
+            ],
+            "rules_ja": [
+                ("⏰ 時間制限", "**時間制限なし** — フルタイム・残業など雇用主と合意した時間で働けます。"),
+                ("⏱️ 6ヶ月の雇用主制限", "同じ雇用主のもとで**最大6ヶ月**まで就労可能。その後は別の雇用主に移る必要があります。本サイトのWHM雇用主トラッカーを使ってください。"),
+                ("🌾 2年目ビザ", "農業・漁業・鉱業・建設業など指定の地方就労を**88日間**完了すると2年目ビザの資格が得られます。"),
+                ("🏆 3年目ビザ", "指定地域での特定の地方就労をさらに**6ヶ月**完了すると3年目ビザの資格が得られます。"),
+                ("💰 スーパー権利", "初日からフルのスーパー権利。帰国時にDASPで返還請求可能 — 本サイトのスーパー計算機を使ってください。"),
+                ("🚫 できないこと", "このビザでの合計就学期間は4ヶ月を超えられません。"),
+            ],
+            "card": "card-yellow",
+        },
+        "grad_485": {
+            "title_en": "🏆 Graduate visa (subclass 485)",
+            "title_ja": "🏆 卒業生ビザ（サブクラス485）",
+            "rules_en": [
+                ("✅ Full work rights", "**No hour limits, no employer limits.** Work any job, any hours, change employers freely."),
+                ("📅 Duration", "2 years for bachelor/masters, up to 5 years for PhD graduates, depending on your qualification and study location."),
+                ("💰 Super entitlements", "Full super entitlements. You're likely a tax resident — lodge a tax return every year."),
+                ("🎓 Study allowed", "Can study on this visa. Many graduates do further certifications while working."),
+            ],
+            "rules_ja": [
+                ("✅ フルの就労権", "**時間制限なし・雇用主制限なし。**どんな仕事も自由に、自由に雇用主を変えられます。"),
+                ("📅 有効期間", "学士・修士は2年、PhD（博士）卒は最大5年（資格と就学地域による）。"),
+                ("💰 スーパー権利", "フルのスーパー権利。税務居住者の可能性が高い — 毎年確定申告してください。"),
+                ("🎓 就学", "このビザでの就学も可能。多くの卒業生が働きながらさらなる資格を取得します。"),
+            ],
+            "card": "card-green",
+        },
+        "work_482": {
+            "title_en": "🔧 Temporary Skill Shortage visa (subclass 482)",
+            "title_ja": "🔧 一時技能不足ビザ（サブクラス482）",
+            "rules_en": [
+                ("✅ Work rights", "Can only work **for your sponsoring employer** in the nominated occupation. Changing employers requires a new sponsorship."),
+                ("⏰ Hours", "No specific hour limit — set by your employment contract."),
+                ("💰 Super entitlements", "Full super entitlements from day one."),
+                ("🔄 Changing jobs", "If you want to change employers, your new employer must sponsor you. There is a 60-day grace period to find a new sponsor if your employment ends."),
+            ],
+            "rules_ja": [
+                ("✅ 就労権", "**スポンサー雇用主のもとで**、指定された職種のみ就労可能。雇用主変更には新たなスポンサーシップが必要。"),
+                ("⏰ 時間", "特定の時間制限なし — 雇用契約による。"),
+                ("💰 スーパー権利", "初日からフルのスーパー権利。"),
+                ("🔄 転職", "転職希望の場合、新しい雇用主がスポンサーになる必要があります。雇用終了後60日間の猶予期間があります。"),
+            ],
+            "card": "card-blue",
+        },
+        "other": {
+            "title_en": "🌏 Other / not sure",
+            "title_ja": "🌏 その他／不明",
+            "rules_en": [
+                ("🔍 Check your visa grant notice", "Your work conditions are printed on your visa grant notice (the email from the Department of Home Affairs when your visa was approved). Look for 'Condition 8104', '8105', '8107' etc."),
+                ("📱 Check online", "Log in to immi.homeaffairs.gov.au with your passport to see your visa conditions instantly."),
+            ],
+            "rules_ja": [
+                ("🔍 ビザ許可通知を確認", "就労条件はビザ許可通知（内務省からのメール）に記載されています。「条件8104」「8105」「8107」などを確認してください。"),
+                ("📱 オンラインで確認", "パスポートでimmi.homeaffairs.gov.auにログインするとビザ条件を即座に確認できます。"),
+            ],
+            "card": "card-yellow",
+        },
+    }
+    # use whm_417 rules for whm_462 too
+    if gv == "whm_462":
+        _vr = dict(VISA_RIGHTS["whm_417"])
+        _vr["title_en"] = "🎒 Work and Holiday visa (subclass 462)"
+        _vr["title_ja"] = "🎒 ワーキング＆ホリデービザ（サブクラス462）"
+        VISA_RIGHTS["whm_462"] = _vr
+
+    _vr   = VISA_RIGHTS.get(gv, VISA_RIGHTS["other"])
+    _title = _vr["title_ja"] if lang == "ja" else _vr["title_en"]
+    _rules = _vr["rules_ja"] if lang == "ja" else _vr["rules_en"]
+
+    st.markdown(
+        f"<div class='card {_vr['card']}' style='padding:14px 18px;margin-bottom:8px'>"
+        f"<b style='color:#e6edf3;font-size:16px'>{_title}</b>"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
+    for rule_title, rule_body in _rules:
+        st.markdown(
+            f"<div class='step-box'><b>{rule_title}</b><br>"
+            f"<span style='color:#8b949e;font-size:13px'>{rule_body}</span></div>",
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("---")
+
+    # ── minimum wage ──────────────────────────────────────────────────────────
+    st.markdown("### " + ("💵 Minimum wage & pay rates" if lang == "en" else "💵 最低賃金・給与レート"))
+
+    if lang == "en":
+        st.markdown("""
+The **National Minimum Wage** applies to all workers in Australia, regardless of visa status.
+As of 1 July 2025: **$24.10 per hour** (or $915.90 per week for full-time).
+
+**Casual workers get 25% loading on top** — so minimum casual rate = **$30.13/hr**.
+This loading compensates for no paid leave, no sick leave, no notice period.
+""")
+    else:
+        st.markdown("""
+**全国最低賃金**はビザの種類に関わらず、オーストラリアのすべての労働者に適用されます。
+2025年7月1日現在：**時給$24.10**（フルタイムは週給$915.90）。
+
+**カジュアル労働者はさらに25%のローディング（割増）が上乗せ** — カジュアルの最低時給 = **$30.13/時**。
+この割増は有給休暇・病気休暇・解雇通知期間がないことへの補償です。
+""")
+
+    wage_cols = st.columns(3)
+    wages = [
+        ("Full-time / Part-time\nフルタイム・パート", "$24.10", "/hr · /時"),
+        ("Casual\nカジュアル", "$30.13", "/hr (incl. 25% loading)\n/時（25%割増込み）"),
+        ("Overtime (first 2hrs)\n残業（最初の2時間）", "$36.15", "/hr (150%)\n/時（150%）"),
+    ]
+    for col, (label, rate, unit) in zip(wage_cols, wages):
+        col.markdown(
+            f"<div class='card card-green' style='padding:12px;text-align:center'>"
+            f"<div style='font-size:11px;color:#8b949e;white-space:pre-line'>{label}</div>"
+            f"<div style='font-size:24px;font-weight:800;color:#3fb950'>{rate}</div>"
+            f"<div style='font-size:10px;color:#8b949e;white-space:pre-line'>{unit}</div>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("")
+
+    with st.expander("📊 " + ("Common industries — typical minimum rates" if lang == "en" else "主な業種の最低賃金目安")):
+        industry_data = {
+            "Industry / 業種": [
+                "Hospitality (café, restaurant) / 飲食",
+                "Retail / 小売",
+                "Supermarket / スーパー",
+                "Farm / agricultural / 農業",
+                "Construction / 建設",
+                "Childcare / 保育",
+                "Cleaning / 清掃",
+            ],
+            "Casual min rate / カジュアル最低時給": [
+                "$30.13+ (Hospitality Award)",
+                "$30.13+ (Retail Award)",
+                "$30.13+ (Retail Award)",
+                "$28.26+ (Horticulture Award)",
+                "$35.00+ (varies by trade)",
+                "$32.00+ (Children's Services Award)",
+                "$30.13+ (Cleaning Award)",
+            ],
+        }
+        st.dataframe(pd.DataFrame(industry_data), hide_index=True, use_container_width=True)
+        st.caption(
+            "Exact rates vary by award, classification, and age. Check your specific award at fairwork.gov.au/pay-and-wages/pay-calculator"
+            if lang == "en" else
+            "正確なレートはアワード・分類・年齢によって異なります。fairwork.gov.au/pay-and-wages/pay-calculatorで確認してください。"
+        )
+
+    st.markdown("---")
+
+    # ── if you're being underpaid ─────────────────────────────────────────────
+    st.markdown("### " + ("🚨 Think you're being underpaid?" if lang == "en" else "🚨 賃金未払いかもしれないと思ったら"))
+
+    underpay_steps_en = [
+        ("1️⃣", "Check your award rate",
+         "Every industry has a Modern Award that sets minimum pay rates. "
+         "Use the Fair Work Pay Calculator: fairwork.gov.au/pay-and-wages/pay-calculator"),
+        ("2️⃣", "Calculate what you're owed",
+         "Multiply the underpayment per hour × hours worked. Keep your payslips and rosters as evidence. "
+         "Employers must provide payslips within 1 working day of each pay period."),
+        ("3️⃣", "Raise it with your employer",
+         "Many underpayments are 'mistakes'. Send a polite written message (email or text) "
+         "asking them to correct it. Keep a copy of everything."),
+        ("4️⃣", "Lodge a complaint with Fair Work",
+         "If your employer refuses, lodge a free complaint with the Fair Work Ombudsman. "
+         "Anonymous reporting is available — they cannot deport you for reporting a wage issue. "
+         "fairwork.gov.au/contact-us/online-enquiries"),
+        ("5️⃣", "You cannot be threatened for complaining",
+         "It is illegal for an employer to threaten your visa, fire you, or retaliate "
+         "because you raised a workplace rights issue. This protection applies to everyone regardless of visa status."),
+    ]
+    underpay_steps_ja = [
+        ("1️⃣", "アワードレートを確認する",
+         "すべての業種にはModern Award（最低賃金基準）があります。"
+         "Fair Work給与計算機を使ってください：fairwork.gov.au/pay-and-wages/pay-calculator"),
+        ("2️⃣", "未払い額を計算する",
+         "時間あたりの未払い額 × 勤務時間 = 未払い合計額。"
+         "給与明細とシフト記録を証拠として保管してください。"
+         "雇用主は各給与期間から1営業日以内に給与明細を発行する義務があります。"),
+        ("3️⃣", "雇用主に申し入れる",
+         "多くの未払いは「ミス」として処理されます。"
+         "丁寧な文書（メールやテキスト）で修正を求めてください。すべての記録を保管してください。"),
+        ("4️⃣", "Fair Workに申告する",
+         "雇用主が拒否した場合、Fair Work Ombudsmanに無料で申告できます。"
+         "匿名申告も可能 — 賃金問題を申告したことで強制送還されることはありません。"
+         "fairwork.gov.au/contact-us/online-enquiries"),
+        ("5️⃣", "申告を理由とした脅しは違法",
+         "就労権の問題を申告したことを理由に"
+         "雇用主がビザを脅したり、解雇したり、報復することは違法です。"
+         "この保護はビザの種類に関わらずすべての人に適用されます。"),
+    ]
+    underpay_steps = underpay_steps_ja if lang == "ja" else underpay_steps_en
+    for icon, title, desc in underpay_steps:
+        st.markdown(
+            f"<div class='step-box'><b>{icon} {title}</b><br>"
+            f"<span style='color:#8b949e;font-size:13px'>{desc}</span></div>",
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("")
+    st.markdown(
+        "<div class='card card-blue'>"
+        + ("🔗 <b>Fair Work Ombudsman — free advice & complaint lodgment:</b><br>"
+           "<a href='https://www.fairwork.gov.au' target='_blank'>fairwork.gov.au</a> · "
+           "Phone: 13 13 94 (free, available in Japanese and other languages via interpreter)"
+           if lang == "en" else
+           "🔗 <b>Fair Work Ombudsman — 無料アドバイスと申告：</b><br>"
+           "<a href='https://www.fairwork.gov.au' target='_blank'>fairwork.gov.au</a> · "
+           "電話：13 13 94（無料、通訳を通じた日本語対応あり）")
+        + "</div>",
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("")
+    st.markdown(
+        "<div class='warn-box'>"
+        + ("⚠️ Work rights information on this page is based on Australian law as of 2025. "
+           "Your specific conditions depend on your visa grant notice and applicable Modern Award. "
+           "For complex situations, contact Fair Work or a migration agent."
+           if lang == "en" else
+           "⚠️ このページの就労権情報は2025年時点のオーストラリア法に基づいています。"
+           "具体的な条件はビザ許可通知と適用されるModern Awardによって異なります。"
+           "複雑な状況ではFair Workまたは移民エージェントにお問い合わせください。")
+        + "</div>",
+        unsafe_allow_html=True,
+    )
+
+# ══════════════════════════════════════════════════════════════════════════════
 #  COMING SOON PAGES
 # ══════════════════════════════════════════════════════════════════════════════
 else:
     st.markdown(f"## {page}")
     st.info(
-        "This page is coming soon. The Super Claim Calculator is live now — start there."
+        "This page is coming soon. Check the live tools in the sidebar — Super Calculator, Tax Estimator, Money Transfer, and WHM Tracker are all ready to use."
         if lang == "en" else
-        "このページは近日公開予定です。スーパー請求計算機は今すぐ使えます。"
+        "このページは近日公開予定です。サイドバーの公開済みツール（スーパー計算機・税金計算機・海外送金・WHMトラッカー）をご利用ください。"
     )
-    if st.button("← " + ("Go to Super Calculator" if lang == "en" else "スーパー計算機へ")):
+    if st.button("← " + ("Back to Home" if lang == "en" else "ホームへ戻る")):
         st.rerun()
