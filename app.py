@@ -1215,7 +1215,7 @@ Example for a resident earning $40,000:
     st.markdown("---")
 
     # ── how to lodge ──────────────────────────────────────────────────────────
-    st.markdown("### " + ("Step 2 — How to lodge your tax return" if lang == "en" else "ステップ2 — 確定申告の方法"))
+    st.markdown("### " + ("Step 5 — How to lodge your tax return" if lang == "en" else "ステップ5 — 確定申告の方法"))
 
     lodge_steps_en = [
         ("1️⃣", "Wait until after 31 July",
@@ -1623,7 +1623,10 @@ This tracker tells you exactly where you stand.
         as_of = date.today()
     else:
         end_month_idx = WM_LABELS.index(emp_end_m) + 1
-        as_of = date(emp_end_y, end_month_idx, 28)
+        if end_month_idx == 12:
+            as_of = date(emp_end_y, 12, 31)
+        else:
+            as_of = date(emp_end_y, end_month_idx + 1, 1) - __import__("datetime").timedelta(days=1)
 
     days_worked    = max(0, (as_of - emp_start_date).days)
     days_limit     = max(1, (emp_deadline - emp_start_date).days)
