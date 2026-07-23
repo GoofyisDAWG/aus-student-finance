@@ -65,7 +65,7 @@ a { color: #58a6ff !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# ── language ──────────────────────────────────────────────────────────────────
+# ── global visa + language (sidebar) ─────────────────────────────────────────
 with st.sidebar:
     st.markdown("## 🦘 AusVisa Finance")
     st.caption(
@@ -80,6 +80,47 @@ with st.sidebar:
         horizontal=True,
     )
     lang = "ja" if "日本語" in lang_choice else "en"
+    st.markdown("---")
+
+    # ── global visa selector ──────────────────────────────────────────────────
+    st.markdown(
+        "<span style='font-size:12px;color:#8b949e;text-transform:uppercase;letter-spacing:0.5px'>"
+        + ("Your visa type" if lang == "en" else "あなたのビザの種類")
+        + "</span>",
+        unsafe_allow_html=True,
+    )
+    _gv_opts_en = [
+        "🎓 Student (500)",
+        "🎒 Working Holiday (417)",
+        "🎒 Work & Holiday (462)",
+        "🏆 Graduate (485)",
+        "🔧 Temporary work (482)",
+        "🤷 Not sure / other",
+    ]
+    _gv_opts_ja = [
+        "🎓 学生ビザ（500）",
+        "🎒 ワーキングホリデー（417）",
+        "🎒 ワーキング＆ホリデー（462）",
+        "🏆 卒業生ビザ（485）",
+        "🔧 一時就労ビザ（482）",
+        "🤷 わからない／その他",
+    ]
+    _gv_opts = _gv_opts_ja if lang == "ja" else _gv_opts_en
+    _gv_sel  = st.selectbox(
+        "visa", _gv_opts, label_visibility="collapsed", key="global_visa_label"
+    )
+    # derive a simple key used by every page
+    if   "417" in _gv_sel: gv = "whm_417"
+    elif "462" in _gv_sel: gv = "whm_462"
+    elif "485" in _gv_sel: gv = "grad_485"
+    elif "482" in _gv_sel: gv = "work_482"
+    elif "500" in _gv_sel: gv = "student_500"
+    else:                   gv = "other"
+
+    is_whm_global    = gv in ("whm_417", "whm_462")
+    is_student_global = gv == "student_500"
+    is_grad_global   = gv == "grad_485"
+
     st.markdown("---")
 
     pages_en = [
@@ -156,10 +197,60 @@ Free, bilingual EN/JA, no sign-up needed.
 
     st.markdown("---")
 
-    # ── tools grid ────────────────────────────────────────────────────────────
+    # ── personalised "start here" card based on global visa ───────────────────
+    _visa_advice = {
+        "student_500": (
+            "🎓 You're on a **Student visa (500)**",
+            "🎓 **学生ビザ（500）**をお持ちですね",
+            "Your priority tools: **Super Claim Calculator** (don't leave without claiming it) → **Tax Estimator** → **Money Transfer**. Work rights: 48h/fortnight during semester.",
+            "優先ツール：**スーパー請求計算機**（帰国前に必ず請求）→ **税金計算機** → **海外送金**。就労：学期中48時間/2週間。",
+        ),
+        "whm_417": (
+            "🎒 You're on a **Working Holiday visa (417)**",
+            "🎒 **ワーキングホリデービザ（417）**をお持ちですね",
+            "Your priority tools: **WHM Employer Tracker** (don't breach the 6-month limit) → **Super Claim Calculator** → **Tax Estimator** (you get the 15% flat rate). Second-year visa? Track your regional work days in the tracker.",
+            "優先ツール：**WHM雇用主トラッカー**（6ヶ月制限に注意）→ **スーパー請求計算機** → **税金計算機**（15%の特別税率）。2年目ビザ希望の場合は地方就労日数もトラッカーで管理。",
+        ),
+        "whm_462": (
+            "🎒 You're on a **Work and Holiday visa (462)**",
+            "🎒 **ワーキング＆ホリデービザ（462）**をお持ちですね",
+            "Your priority tools: **WHM Employer Tracker** (6-month employer limit applies) → **Super Claim Calculator** → **Tax Estimator** (15% flat rate on first $45k). Second-year visa requires 88 days regional work.",
+            "優先ツール：**WHM雇用主トラッカー**（6ヶ月制限あり）→ **スーパー請求計算機** → **税金計算機**（最初の$45kは15%）。2年目ビザには88日の地方就労が必要。",
+        ),
+        "grad_485": (
+            "🏆 You're on a **Graduate visa (485)**",
+            "🏆 **卒業生ビザ（485）**をお持ちですね",
+            "You have full work rights with no hour limits. Priority tools: **Tax Estimator** (you're likely a tax resident — make sure to lodge a return) → **Super Claim Calculator** → **Money Transfer**.",
+            "就労権は無制限です。優先ツール：**税金計算機**（税務居住者の可能性が高い — 確定申告を忘れずに）→ **スーパー請求計算機** → **海外送金**。",
+        ),
+        "work_482": (
+            "🔧 You're on a **Temporary Skill Shortage visa (482)**",
+            "🔧 **一時技能不足ビザ（482）**をお持ちですね",
+            "You can only work for your sponsoring employer. Priority tools: **Tax Estimator** → **Super Claim Calculator** → **Money Transfer**.",
+            "就労はスポンサー雇用主のみ可能です。優先ツール：**税金計算機** → **スーパー請求計算機** → **海外送金**。",
+        ),
+        "other": (
+            "👋 Welcome to AusVisa Finance",
+            "👋 AusVisa Financeへようこそ",
+            "Select your visa type in the sidebar and the site will show you exactly which tools matter most for your situation.",
+            "サイドバーでビザの種類を選択すると、あなたの状況に合った優先ツールが表示されます。",
+        ),
+    }
+    _va = _visa_advice.get(gv, _visa_advice["other"])
+    _va_title = _va[1] if lang == "ja" else _va[0]
+    _va_desc  = _va[3] if lang == "ja" else _va[2]
     st.markdown(
-        "### " + ("Tools" if lang == "en" else "ツール"),
+        f"<div class='card card-blue' style='padding:16px 20px'>"
+        f"<b style='color:#e6edf3'>{_va_title}</b><br>"
+        f"<span style='color:#8b949e;font-size:13px'>{_va_desc}</span>"
+        f"</div>",
+        unsafe_allow_html=True,
     )
+
+    st.markdown("")
+
+    # ── tools grid ────────────────────────────────────────────────────────────
+    st.markdown("### " + ("All tools" if lang == "en" else "全ツール"))
     c1, c2 = st.columns(2)
     tools = [
         ("💰", "Super Claim Calculator",
@@ -600,9 +691,16 @@ by employers who don't know your status, which means you're probably owed a refu
             "🌏 その他の一時ビザ",
         ]
         visa_opts  = visa_opts_ja if lang == "ja" else visa_opts_en
+        # pre-select index based on global visa chosen in sidebar
+        _gv_to_tax_idx = {
+            "student_500": 0, "grad_485": 1, "whm_417": 2,
+            "whm_462": 3, "work_482": 4, "other": 5,
+        }
+        _tax_default_idx = _gv_to_tax_idx.get(gv, 0)
         visa_sel   = st.selectbox(
             "Your visa type" if lang == "en" else "ビザの種類",
             visa_opts,
+            index=_tax_default_idx,
         )
         is_whm = "417" in visa_sel or "462" in visa_sel
 
@@ -796,11 +894,13 @@ by employers who don't know your status, which means you're probably owed a refu
 
     col_c, col_d = st.columns(2)
     with col_c:
+        # WHMs are NOT Medicare exempt; students/grads usually are
+        _medicare_default = not is_whm_global
         medicare_exempt = st.checkbox(
             "Medicare Levy exempt (most international students qualify)"
             if lang == "en" else
             "メディケアレビー免除（ほとんどの留学生が対象）",
-            value=(tax_status != "whm"),
+            value=_medicare_default,
             help="International students on student visas can apply for a Medicare Levy Exemption "
                  "Certificate from Medicare Australia. Working Holiday Makers are NOT exempt."
                  if lang == "en" else
