@@ -1494,7 +1494,7 @@ Wiseは中間市場レートを使用し、小さな透明な手数料（約0.5%
     # ── wise CTA ──────────────────────────────────────────────────────────────
     st.markdown("### " + ("Use Wise for your next transfer" if lang == "en" else "次の送金にWiseを使う"))
 
-    wise_url = st.secrets.get("WISE_REFERRAL_URL", "https://wise.com") if hasattr(st, "secrets") else "https://wise.com"
+    wise_url = st.secrets.get("WISE_REFERRAL_URL", "https://wise.com/invite/dic/hirokik888") if hasattr(st, "secrets") else "https://wise.com/invite/dic/hirokik888"
 
     st.markdown(
         f"<div class='card card-green' style='padding:24px'>"
