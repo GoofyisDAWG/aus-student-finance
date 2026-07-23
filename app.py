@@ -1,12 +1,14 @@
 """
-International Student Finance — Australia
-Built for international students (Japanese-first) navigating Australian money.
+AusVisa Finance — Australia
+Built for international students AND working holiday makers in Australia.
+Japanese-first, fully bilingual EN/JA.
 
 Pages:
   🏠 Home
   💰 Super Claim Calculator
-  🧾 Tax Estimator        (coming soon)
-  💸 Money Transfer        (coming soon)
+  🧾 Tax Estimator
+  💸 Money Transfer
+  ⏱️ WHM Employer Tracker
   🏦 Bank Account Guide   (coming soon)
   📋 Work Rights          (coming soon)
 """
@@ -18,7 +20,7 @@ from datetime import date, datetime
 
 # ── page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="AusStudent Finance",
+    page_title="AusVisa Finance",
     page_icon="🦘",
     layout="centered",
     initial_sidebar_state="expanded",
@@ -65,8 +67,11 @@ a { color: #58a6ff !important; }
 
 # ── language ──────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("## 🦘 AusStudent Finance")
-    st.caption("For international students in Australia\nオーストラリアの留学生のために")
+    st.markdown("## 🦘 AusVisa Finance")
+    st.caption(
+        "For international students & working holiday makers in Australia\n"
+        "留学生・ワーキングホリデーのためのお金ガイド"
+    )
     st.markdown("---")
 
     lang_choice = st.radio(
@@ -82,6 +87,7 @@ with st.sidebar:
         "💰 Super Claim Calculator",
         "🧾 Tax Estimator",
         "💸 Money Transfer",
+        "⏱️ WHM Employer Tracker",
         "🏦 Bank Account Guide",
         "📋 Work Rights",
     ]
@@ -90,6 +96,7 @@ with st.sidebar:
         "💰 スーパー請求計算機",
         "🧾 税金計算機",
         "💸 海外送金",
+        "⏱️ WHM雇用主トラッカー",
         "🏦 銀行口座ガイド",
         "📋 就労権利",
     ]
@@ -99,9 +106,9 @@ with st.sidebar:
 
     st.markdown("---")
     st.caption(
-        "Made by a Japanese finance student at UQ.\nData is for guidance only — not financial or legal advice."
+        "Made by a Japanese student at UQ.\nGeneral information only — not financial or legal advice."
         if lang == "en" else
-        "UQの日本人留学生が制作。情報提供のみを目的としています。"
+        "UQの日本人留学生が制作。情報提供のみ。"
     )
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -109,11 +116,11 @@ with st.sidebar:
 # ══════════════════════════════════════════════════════════════════════════════
 if page == "🏠 Home":
     st.markdown(
-        "<div class='hero-title'>🦘 AusStudent Finance</div>"
+        "<div class='hero-title'>🦘 AusVisa Finance</div>"
         "<div class='hero-sub'>"
-        + ("The money guide built for international students in Australia — by one of us."
+        + ("Free money tools for international students & working holiday makers in Australia — built by one of you."
            if lang == "en" else
-           "オーストラリアの留学生のためのお金ガイド — 同じ留学生が作りました。")
+           "留学生・ワーキングホリデーのための無料お金ガイド — 同じ立場の人間が作りました。")
         + "</div>",
         unsafe_allow_html=True,
     )
@@ -122,25 +129,29 @@ if page == "🏠 Home":
     # ── the problem ───────────────────────────────────────────────────────────
     if lang == "en":
         st.markdown("""
-Most international students leave Australia without knowing:
+Most international students and working holiday makers leave Australia without knowing:
 
-- 💰 They're owed **superannuation** from every Australian employer — often $2,000–$8,000
-- 🧾 They're probably owed a **tax refund** and don't know how to claim it
-- 💸 They're paying **3–5% in bank fees** to send money home when Wise charges 0.5%
-- 📋 They have **full workplace rights** — many employers underpay international students who don't know this
+- 💰 They're owed **superannuation** from every job — often $2,000–$8,000 sitting unclaimed
+- 🧾 They paid **too much tax** and are owed a refund — but never lodged a return
+- 💸 They lost **3–5% on every money transfer** home when Wise costs 0.5%
+- ⏱️ WHM holders hit the **6-month employer limit** without realising, risking their visa
+- 📋 They have **full workplace rights** — many employers underpay people who don't know this
 
-This site exists to fix that. Free, bilingual, built specifically for you.
+The language barrier makes all of this worse. This site exists to fix that.
+Free, bilingual EN/JA, no sign-up needed.
 """)
     else:
         st.markdown("""
-多くの留学生はオーストラリアを離れる際に以下を知らないことが多いです：
+多くの留学生・ワーキングホリデー参加者がオーストラリアを離れる際に以下を知らないことが多いです：
 
-- 💰 すべてのオーストラリア雇用主から**スーパーアニュエーション（退職金）**が支払われており、多くの場合2,000〜8,000ドル相当
-- 🧾 おそらく**税金の還付**を受ける権利があるが、請求方法を知らない
-- 💸 Wiseを使えば0.5%の手数料で送金できるのに、銀行で**3〜5%の手数料**を払っている
-- 📋 **完全な労働権**があるにもかかわらず、知らないために多くの留学生が低賃金で働かされている
+- 💰 すべての職場から**スーパーアニュエーション（退職金）**が積み立てられており、多くの場合2,000〜8,000ドルが未請求のまま
+- 🧾 **税金を払いすぎており還付を受けられる**のに、確定申告をしたことがない
+- 💸 Wiseなら0.5%なのに、銀行送金で**毎回3〜5%の手数料**を払っている
+- ⏱️ WHM保持者が知らないうちに**6ヶ月の雇用主制限**を超え、ビザリスクを抱えている
+- 📋 **完全な労働権**があるにもかかわらず、知らないために低賃金で働かされている
 
-このサイトはその問題を解決するために作られました。無料・バイリンガル・あなたのために。
+言語の壁がこれらをさらに難しくしています。このサイトはその問題を解決するために作られました。
+無料・日英バイリンガル・登録不要。
 """)
 
     st.markdown("---")
@@ -153,23 +164,33 @@ This site exists to fix that. Free, bilingual, built specifically for you.
     tools = [
         ("💰", "Super Claim Calculator",
          "スーパー請求計算機",
-         "Find out how much super you're owed and how to claim it before you leave.",
+         "How much super are you owed? Calculate it and get the step-by-step claim guide.",
          "退職金がいくら受け取れるか計算し、帰国前に請求する方法を確認。",
          True, c1),
         ("🧾", "Tax Estimator",
          "税金計算機",
-         "Estimate your tax refund from Australian casual work.",
-         "アルバイト収入からの税金還付額を計算。",
-         False, c2),
+         "Enter your visa, dates, and income — we calculate your tax and estimate your refund.",
+         "ビザ・滞在期間・収入を入力 — 税額と還付額を自動計算。",
+         True, c2),
         ("💸", "Money Transfer Comparison",
          "海外送金比較",
-         "Compare Wise vs banks to stop overpaying on transfers to Japan.",
-         "WiseとBank手数料を比較して送金コストを節約。",
-         False, c1),
+         "7 providers compared side by side. See exactly how much more you get with Wise.",
+         "7社を横並び比較。Wiseでいくら多く受け取れるか一目でわかる。",
+         True, c1),
+        ("⏱️", "WHM Employer Tracker",
+         "WHM雇用主トラッカー",
+         "Track your 6-month employer limit and second-year visa regional work progress.",
+         "6ヶ月の雇用主制限と2年目ビザのための地方就労進捗を追跡。",
+         True, c2),
         ("🏦", "Bank Account Guide",
          "銀行口座ガイド",
-         "Which Australian bank account is best for a new international student?",
-         "新着留学生に最適なオーストラリアの銀行口座は？",
+         "Which Australian bank account is best when you first arrive?",
+         "到着直後に最適なオーストラリアの銀行口座は？",
+         False, c1),
+        ("📋", "Work Rights",
+         "就労権利",
+         "Know your rights — hours, pay rates, entitlements by visa type.",
+         "就労権を知る — ビザ別の時間・賃金・権利。",
          False, c2),
     ]
     for icon, title_en, title_ja, desc_en, desc_ja, live, col in tools:
@@ -1257,6 +1278,277 @@ Wiseは中間市場レートを使用し、小さな透明な手数料（約0.5%
            "⚠️ 表示されているレートはユーザーが入力した中間市場レートを使用した概算です。"
            "実際のレートと手数料は金額・通貨・支払い方法・日付によって異なります。"
            "送金前に必ずプロバイダーのウェブサイトで正確なレートを確認してください。")
+        + "</div>",
+        unsafe_allow_html=True,
+    )
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  WHM EMPLOYER TRACKER
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "⏱️ WHM Employer Tracker":
+
+    import calendar as _calendar
+
+    def _add_months(d: date, months: int) -> date:
+        month = d.month - 1 + months
+        year  = d.year + month // 12
+        month = month % 12 + 1
+        day   = min(d.day, _calendar.monthrange(year, month)[1])
+        return date(year, month, day)
+
+    st.markdown("## ⏱️ " + ("WHM Employer Tracker" if lang == "en" else "WHM雇用主トラッカー"))
+
+    if lang == "en":
+        st.markdown("""
+**Working Holiday Makers (visa 417 and 462) can only work for the same employer for 6 months.**
+After 6 months, you must move to a different employer or risk breaching your visa conditions.
+
+Many people lose track of this — especially when shifts are casual and start dates are vague.
+This tracker tells you exactly where you stand.
+""")
+    else:
+        st.markdown("""
+**ワーキングホリデービザ（417・462）保持者は同じ雇用主のもとで最大6ヶ月しか働けません。**
+6ヶ月を超えると、ビザ条件違反になる可能性があります。
+
+カジュアルシフトが多く開始日が曖昧なため、多くの人がこれを見落とします。
+このトラッカーで正確な状況を確認しましょう。
+""")
+
+    st.markdown("---")
+
+    # ── visa sub-type ─────────────────────────────────────────────────────────
+    st.markdown("### " + ("Your visa" if lang == "en" else "あなたのビザ"))
+    whm_visa = st.radio(
+        "Visa subclass" if lang == "en" else "ビザサブクラス",
+        ["417 — Working Holiday", "462 — Work and Holiday"],
+        horizontal=True,
+    )
+
+    # ── employer 6-month tracker ──────────────────────────────────────────────
+    st.markdown("### " + ("Step 1 — 6-month employer limit" if lang == "en" else "ステップ1 — 6ヶ月雇用主制限"))
+
+    WM = MONTHS_JA if lang == "ja" else MONTHS_EN  # reuse month labels from Tax page scope — define locally
+    WM = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+    WM_JA = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"]
+    WM_LABELS = WM_JA if lang == "ja" else WM
+    WY = list(range(2022, 2028))
+
+    ec1, ec2, ec3, ec4 = st.columns(4)
+    with ec1:
+        emp_start_m = st.selectbox(
+            "Started (month)" if lang == "en" else "開始（月）", WM_LABELS, index=0
+        )
+    with ec2:
+        emp_start_y = st.selectbox(
+            "Started (year)" if lang == "en" else "開始（年）", WY, index=2
+        )
+    with ec3:
+        still_working = st.checkbox(
+            "Still working there" if lang == "en" else "まだ働いている", value=True
+        )
+    with ec4:
+        if not still_working:
+            emp_end_m = st.selectbox(
+                "Left (month)" if lang == "en" else "退職（月）", WM_LABELS, index=5
+            )
+            emp_end_y = st.selectbox(
+                "Left (year)" if lang == "en" else "退職（年）", WY, index=2
+            )
+
+    start_month_idx  = WM_LABELS.index(emp_start_m) + 1
+    emp_start_date   = date(emp_start_y, start_month_idx, 1)
+    emp_deadline     = _add_months(emp_start_date, 6)
+
+    if still_working:
+        as_of = date.today()
+    else:
+        end_month_idx = WM_LABELS.index(emp_end_m) + 1
+        as_of = date(emp_end_y, end_month_idx, 28)
+
+    days_worked    = max(0, (as_of - emp_start_date).days)
+    days_limit     = max(1, (emp_deadline - emp_start_date).days)
+    days_remaining = (emp_deadline - as_of).days
+    pct            = min(100, int(days_worked / days_limit * 100))
+
+    # colour
+    if days_remaining < 0:
+        bar_colour, card_class, status_icon = "#f85149", "card-red", "🚨"
+    elif days_remaining <= 30:
+        bar_colour, card_class, status_icon = "#d29922", "card-yellow", "⚠️"
+    else:
+        bar_colour, card_class, status_icon = "#3fb950", "card-green", "✅"
+
+    # progress bar HTML
+    st.markdown(
+        f"<div style='background:#21262d;border-radius:6px;height:18px;margin:12px 0'>"
+        f"<div style='background:{bar_colour};width:{pct}%;height:100%;border-radius:6px;"
+        f"transition:width 0.4s'></div></div>",
+        unsafe_allow_html=True,
+    )
+
+    if days_remaining >= 0:
+        st.markdown(
+            f"<div class='card {card_class}' style='padding:16px 20px'>"
+            f"<b style='font-size:18px'>{status_icon} "
+            + (f"{days_worked} days worked · {days_remaining} days remaining"
+               if lang == "en" else
+               f"{days_worked}日就労済み · 残り{days_remaining}日")
+            + f"</b><br><span style='color:#8b949e;font-size:13px'>"
+            + (f"6-month limit reached: {emp_deadline.strftime('%d %B %Y')} — "
+               f"{'move on before this date' if days_remaining > 0 else 'you must already have left'}"
+               if lang == "en" else
+               f"6ヶ月期限：{emp_deadline.strftime('%Y年%m月%d日')} — "
+               f"{'この日までに退職してください' if days_remaining > 0 else 'すでに退職が必要な日を過ぎています'}")
+            + f"</span></div>",
+            unsafe_allow_html=True,
+        )
+    else:
+        st.markdown(
+            f"<div class='card card-red' style='padding:16px 20px'>"
+            f"<b style='font-size:18px'>🚨 "
+            + (f"Over the 6-month limit by {abs(days_remaining)} days"
+               if lang == "en" else
+               f"6ヶ月制限を{abs(days_remaining)}日超過しています")
+            + f"</b><br><span style='color:#8b949e;font-size:13px'>"
+            + ("Your 6-month limit was "
+               f"{emp_deadline.strftime('%d %B %Y')}. "
+               "If you are still with this employer, you may be in breach of your visa conditions. "
+               "Contact a migration agent for advice."
+               if lang == "en" else
+               f"6ヶ月の期限は{emp_deadline.strftime('%Y年%m月%d日')}でした。"
+               "まだ同じ雇用主のもとで働いている場合、ビザ条件違反の可能性があります。"
+               "移民エージェントにご相談ください。")
+            + f"</span></div>",
+            unsafe_allow_html=True,
+        )
+
+    with st.expander("ℹ️ " + ("About the 6-month rule" if lang == "en" else "6ヶ月ルールについて")):
+        if lang == "en":
+            st.markdown("""
+The 6-month limit applies per employer, not per job. If you work at two different McDonald's
+franchises owned by different companies, that resets the clock. If they're the same owner, it doesn't.
+
+**Exceptions:** Some industries and employers are approved for longer stays. Regional agricultural
+employers and some healthcare/tourism employers may be on the approved list — check your visa
+grant notice or immi.homeaffairs.gov.au for details.
+
+**The clock starts** from the first day you work for that employer — not from when you signed a contract.
+""")
+        else:
+            st.markdown("""
+6ヶ月制限は雇用主単位で適用されます。異なる会社が経営する2つのマクドナルドなら時計はリセットされます。
+同じオーナーなら引き継ぎとみなされます。
+
+**例外：** 一部の業種・雇用主は長期就労が認められています。地方の農業雇用主や
+医療・観光業の一部が対象になることがあります — ビザ許可通知またはimmi.homeaffairs.gov.auで確認してください。
+
+**カウント開始日**は契約日ではなく、実際に初日に働いた日からです。
+""")
+
+    st.markdown("---")
+
+    # ── second year visa tracker ───────────────────────────────────────────────
+    st.markdown("### " + ("Step 2 — Second year visa (88 days regional work)" if lang == "en" else "ステップ2 — 2年目ビザ（地方就労88日）"))
+
+    if lang == "en":
+        st.markdown("""
+To qualify for a **second-year Working Holiday visa**, you need to complete **88 days**
+of specified work in a regional area of Australia during your first visa.
+
+Qualifying work includes: farm work, fruit picking, fishing, mining, construction in regional areas.
+""")
+    else:
+        st.markdown("""
+**2年目のワーキングホリデービザ**を取得するには、最初のビザ期間中に
+オーストラリアの地方エリアで**88日間**の指定就労を完了する必要があります。
+
+対象となる就労：農業・果物収穫・漁業・鉱業・地方エリアでの建設業など。
+""")
+
+    num_periods = st.number_input(
+        "How many regional work periods do you want to add?" if lang == "en" else "地方就労期間をいくつ追加しますか？",
+        min_value=1, max_value=5, value=1, step=1,
+    )
+
+    total_regional_days = 0
+    for i in range(int(num_periods)):
+        st.markdown(f"**{'Period' if lang == 'en' else '期間'} {i+1}**")
+        rp1, rp2, rp3, rp4 = st.columns(4)
+        with rp1:
+            rs_m = st.selectbox(f"{'Start month' if lang == 'en' else '開始月'} {i+1}", WM_LABELS, index=0, key=f"rs_m_{i}")
+        with rp2:
+            rs_y = st.selectbox(f"{'Start year' if lang == 'en' else '開始年'} {i+1}", WY, index=2, key=f"rs_y_{i}")
+        with rp3:
+            re_m = st.selectbox(f"{'End month' if lang == 'en' else '終了月'} {i+1}", WM_LABELS, index=2, key=f"re_m_{i}")
+        with rp4:
+            re_y = st.selectbox(f"{'End year' if lang == 'en' else '終了年'} {i+1}", WY, index=2, key=f"re_y_{i}")
+
+        rs_idx   = WM_LABELS.index(rs_m) + 1
+        re_idx   = WM_LABELS.index(re_m) + 1
+        rs_date  = date(rs_y, rs_idx, 1)
+        re_month = re_idx + 1 if re_idx < 12 else 1
+        re_year  = re_y if re_idx < 12 else re_y + 1
+        re_date  = date(re_year, re_month, 1) - __import__("datetime").timedelta(days=1)
+        period_days = max(0, (re_date - rs_date).days)
+        total_regional_days += period_days
+        st.caption(f"{'~' if lang == 'en' else '約'}{period_days} {'days' if lang == 'en' else '日'}")
+
+    reg_pct = min(100, int(total_regional_days / 88 * 100))
+    reg_colour = "#3fb950" if total_regional_days >= 88 else "#d29922" if total_regional_days >= 60 else "#58a6ff"
+
+    st.markdown(
+        f"<div style='background:#21262d;border-radius:6px;height:18px;margin:12px 0'>"
+        f"<div style='background:{reg_colour};width:{reg_pct}%;height:100%;border-radius:6px'></div></div>",
+        unsafe_allow_html=True,
+    )
+
+    if total_regional_days >= 88:
+        st.markdown(
+            f"<div class='card card-green' style='padding:14px 18px'>"
+            f"<b style='color:#3fb950'>✅ "
+            + (f"{total_regional_days} days — you qualify for the second-year visa!"
+               if lang == "en" else
+               f"{total_regional_days}日 — 2年目ビザの条件を満たしています！")
+            + f"</b></div>",
+            unsafe_allow_html=True,
+        )
+    else:
+        needed = 88 - total_regional_days
+        st.markdown(
+            f"<div class='card card-blue' style='padding:14px 18px'>"
+            f"<b>"
+            + (f"{total_regional_days} / 88 days — {needed} more days needed"
+               if lang == "en" else
+               f"{total_regional_days} / 88日 — あと{needed}日必要")
+            + f"</b></div>",
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("")
+    st.markdown(
+        "<div class='card card-blue'>"
+        + ("🔗 <b>Official WHM visa info:</b> "
+           "<a href='https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/work-holiday-417' target='_blank'>"
+           "immi.homeaffairs.gov.au — Working Holiday visa (417)</a>"
+           if lang == "en" else
+           "🔗 <b>ワーキングホリデービザ公式情報：</b> "
+           "<a href='https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/work-holiday-417' target='_blank'>"
+           "immi.homeaffairs.gov.au — ワーキングホリデービザ（417）</a>")
+        + "</div>",
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("")
+    st.markdown(
+        "<div class='warn-box'>"
+        + ("⚠️ This tracker is an estimate based on the dates you enter. "
+           "Day counts are approximate (month-level precision). "
+           "For visa compliance decisions, always verify with the Department of Home Affairs or a registered migration agent."
+           if lang == "en" else
+           "⚠️ このトラッカーは入力された日付に基づく概算です。"
+           "日数計算は月単位の精度です。"
+           "ビザコンプライアンスの判断には、必ず内務省または登録移民エージェントに確認してください。")
         + "</div>",
         unsafe_allow_html=True,
     )
