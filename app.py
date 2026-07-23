@@ -1588,7 +1588,6 @@ This tracker tells you exactly where you stand.
     # ── employer 6-month tracker ──────────────────────────────────────────────
     st.markdown("### " + ("Step 1 — 6-month employer limit" if lang == "en" else "ステップ1 — 6ヶ月雇用主制限"))
 
-    WM = MONTHS_JA if lang == "ja" else MONTHS_EN  # reuse month labels from Tax page scope — define locally
     WM = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
     WM_JA = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"]
     WM_LABELS = WM_JA if lang == "ja" else WM
@@ -2359,6 +2358,28 @@ Every savings account in Australia has **two rates:**
         if lang == "en" else
         "🔜 近日追加：シドニー・メルボルン・パース・ゴールドコースト・アデレード"
     )
+
+    # ── suburb search ─────────────────────────────────────────────────────────
+    suburb_input = st.text_input(
+        "🔍 " + ("Search by suburb or address" if lang == "en" else "郊外・住所で検索"),
+        placeholder="e.g. Toowong, South Bank, St Lucia..." if lang == "en" else "例：トーウォン、サウスバンク、セントルシア...",
+        help="We do not store or save your address." if lang == "en" else "住所・番地は保存されません。",
+    )
+    st.caption(
+        "🔒 Your address is not stored or saved." if lang == "en" else "🔒 入力した住所・番地は保存されません。"
+    )
+    if suburb_input.strip():
+        maps_query = suburb_input.strip().replace(" ", "+") + "+Brisbane+bank+branch"
+        maps_url = f"https://www.google.com/maps/search/{maps_query}"
+        st.markdown(
+            f"[🗺️ {'Search Google Maps for bank branches near' if lang == 'en' else '近くの銀行支店をGoogle マップで検索'} **{suburb_input.strip()}**]({maps_url})",
+        )
+        st.caption(
+            "Opens Google Maps in a new tab — you can filter by bank name (CommBank, NAB, ANZ, Westpac)."
+            if lang == "en" else
+            "Google マップが開きます。銀行名（CommBank・NAB・ANZ・Westpac）で絞り込めます。"
+        )
+    st.markdown("")
 
     BRISBANE_AREAS = {
         "🏙️ CBD / City" if lang == "en" else "🏙️ CBD・シティ": {
