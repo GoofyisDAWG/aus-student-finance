@@ -539,38 +539,143 @@ by employers who don't know your status, which means you're probably owed a refu
     # ── inputs ────────────────────────────────────────────────────────────────
     st.markdown("### " + ("Step 1 — Your situation" if lang == "en" else "ステップ1 — あなたの状況"))
 
+    # financial year bounds
+    FY_RANGES = {
+        "FY2025-26": (date(2025, 7, 1), date(2026, 6, 30)),
+        "FY2024-25": (date(2024, 7, 1), date(2025, 6, 30)),
+        "FY2023-24": (date(2023, 7, 1), date(2024, 6, 30)),
+        "FY2022-23": (date(2022, 7, 1), date(2023, 6, 30)),
+    }
+    MONTHS_EN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+    MONTHS_JA = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"]
+    MONTH_LABELS = MONTHS_JA if lang == "ja" else MONTHS_EN
+    YEARS = list(range(2020, 2027))
+
     col_a, col_b = st.columns(2)
     with col_a:
         fy = st.selectbox(
             "Financial year" if lang == "en" else "会計年度",
-            ["FY2025-26", "FY2024-25", "FY2023-24", "FY2022-23"],
+            list(FY_RANGES.keys()),
             index=0,
             help="Australian tax year runs 1 Jul to 30 Jun."
                  if lang == "en" else
                  "オーストラリアの税年度は7月1日〜翌年6月30日。",
         )
     with col_b:
-        status_opts_en = [
-            "🇦🇺 Australian tax resident (183+ days)",
-            "🌏 Foreign resident for tax (<183 days)",
-            "🎒 Working Holiday Maker (417/462 visa)",
-        ]
-        status_opts_ja = [
-            "🇦🇺 オーストラリア税務居住者（183日以上）",
-            "🌏 外国居住者（183日未満）",
-            "🎒 ワーキングホリデー（417/462ビザ）",
-        ]
-        status_opts = status_opts_ja if lang == "ja" else status_opts_en
-        status_sel = st.selectbox(
-            "Your tax residency status" if lang == "en" else "税務上の居住者ステータス",
-            status_opts,
+        is_whm = st.checkbox(
+            "🎒 Working Holiday visa (417 or 462)"
+            if lang == "en" else
+            "🎒 ワーキングホリデービザ（417/462）",
+            help="Working Holiday Makers have a special flat 15% rate on the first $45,000 — "
+                 "regardless of how many days they spent in Australia."
+                 if lang == "en" else
+                 "ワーキングホリデーは最初の$45,000に一律15%の特別レート — 滞在日数に関わらず。",
         )
-        if "resident" in status_sel or "居住者" in status_sel and "外国" not in status_sel:
-            tax_status = "resident"
-        elif "Foreign" in status_sel or "外国" in status_sel:
-            tax_status = "foreign"
+
+    fy_start, fy_end = FY_RANGES[fy]
+
+    if is_whm:
+        tax_status = "whm"
+        st.markdown(
+            "<div class='step-box'>🎒 "
+            + ("Working Holiday Maker rate applies: <b>15% flat on first $45,000</b>, "
+               "then standard brackets above that. No tax-free threshold."
+               if lang == "en" else
+               "ワーキングホリデーレート適用：<b>最初の$45,000は一律15%</b>、以降は通常の税率。非課税枠なし。")
+            + "</div>",
+            unsafe_allow_html=True,
+        )
+    else:
+        # ── arrival / departure month selectors ───────────────────────────────
+        st.markdown(
+            "<span style='color:#8b949e;font-size:13px'>"
+            + ("Enter when you arrived and left Australia — we'll calculate your days automatically."
+               if lang == "en" else
+               "オーストラリアへの入国・出国月を入力 — 滞在日数を自動計算します。")
+            + "</span>",
+            unsafe_allow_html=True,
+        )
+        ca1, ca2, ca3, ca4 = st.columns(4)
+        with ca1:
+            arr_m = st.selectbox(
+                "Arrived (month)" if lang == "en" else "入国（月）",
+                MONTH_LABELS, index=8,
+            )
+        with ca2:
+            arr_y = st.selectbox(
+                "Arrived (year)" if lang == "en" else "入国（年）",
+                YEARS, index=4,
+            )
+        with ca3:
+            still_here = st.checkbox(
+                "Still in AU" if lang == "en" else "まだ滞在中",
+                value=False,
+            )
+        with ca4:
+            if not still_here:
+                dep_m = st.selectbox(
+                    "Left (month)" if lang == "en" else "出国（月）",
+                    MONTH_LABELS, index=5,
+                )
+                dep_y = st.selectbox(
+                    "Left (year)" if lang == "en" else "出国（年）",
+                    YEARS, index=5,
+                )
+
+        # build dates — use 1st of arrival month, last day of departure month
+        arr_month_idx = MONTH_LABELS.index(arr_m) + 1
+        arr_date = date(arr_y, arr_month_idx, 1)
+
+        if still_here:
+            dep_date = date.today()
         else:
-            tax_status = "whm"
+            dep_month_idx = MONTH_LABELS.index(dep_m) + 1
+            # last day of departure month
+            if dep_month_idx == 12:
+                dep_date = date(dep_y, 12, 31)
+            else:
+                dep_date = date(dep_y, dep_month_idx + 1, 1) - __import__("datetime").timedelta(days=1)
+
+        # clamp to the selected FY
+        eff_start  = max(arr_date, fy_start)
+        eff_end    = min(dep_date, fy_end)
+        days_in_fy = max(0, (eff_end - eff_start).days)
+
+        if days_in_fy >= 183:
+            tax_status = "resident"
+            st.markdown(
+                "<div class='card card-green' style='padding:12px 16px;margin:8px 0'>"
+                f"<b style='color:#3fb950'>✅ ~{days_in_fy} days in Australia during {fy}</b><br>"
+                "<span style='color:#8b949e;font-size:13px'>"
+                + ("183+ days → you are likely an <b>Australian tax resident</b>. "
+                   "You get the $18,200 tax-free threshold."
+                   if lang == "en" else
+                   "183日以上 → <b>オーストラリア税務居住者</b>の可能性が高いです。"
+                   "$18,200まで非課税枠があります。")
+                + "</span></div>",
+                unsafe_allow_html=True,
+            )
+        elif days_in_fy > 0:
+            tax_status = "foreign"
+            st.markdown(
+                "<div class='card card-yellow' style='padding:12px 16px;margin:8px 0'>"
+                f"<b style='color:#d29922'>⚠️ ~{days_in_fy} days in Australia during {fy}</b><br>"
+                "<span style='color:#8b949e;font-size:13px'>"
+                + ("Under 183 days → you are likely a <b>foreign resident for tax</b>. "
+                   "No tax-free threshold — taxed at 32.5% from dollar 1."
+                   if lang == "en" else
+                   "183日未満 → <b>外国居住者（税務上）</b>の可能性が高いです。"
+                   "非課税枠なし — 1ドルから32.5%課税。")
+                + "</span></div>",
+                unsafe_allow_html=True,
+            )
+        else:
+            tax_status = "foreign"
+            st.warning(
+                "No days in Australia fall within this financial year. Check your dates."
+                if lang == "en" else
+                "この会計年度内にオーストラリア滞在日数がありません。日付を確認してください。"
+            )
 
     income = st.number_input(
         "Total Australian income this financial year (AUD)"
