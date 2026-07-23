@@ -1320,6 +1320,7 @@ elif page == "💸 Money Transfer":
     # flat_fee_aud = fixed transfer fee in AUD equivalent
     PROVIDERS = [
         ("Wise",          0.005,  0.00, "#3fb950", "best"),
+        ("Revolut",       0.007,  0.00, "#3fb950", "best"),
         ("Remitly",       0.015,  3.99, "#58a6ff", "good"),
         ("Western Union", 0.020,  5.00, "#8b949e", "ok"),
         ("NAB",           0.035,  8.00, "#d29922", "bank"),
@@ -2228,6 +2229,14 @@ This guide helps you pick the right account for your situation in 2 minutes.
             "AU最高のバジェットアプリ。支店なし。AU電話番号が必要。",
         ),
         (
+            "Revolut", "$0/mo (Standard)", "Always free on Standard plan",
+            "N/A", "Savings Vaults ~4–5%", "Varies by plan",
+            "No Revolut ATMs — fee-free withdrawals up to $350/mo on Standard", "✅ Yes (fully online)",
+            "No branches (100% digital)",
+            "Excellent app", "⚠️ NOT covered by AU government $250k deposit guarantee. Multi-currency, great for UK/EU WHMs.",
+            "⚠️ オーストラリア政府の預金保証（25万ドル）対象外。マルチカレンシー対応。UK・欧州WHMに人気。",
+        ),
+        (
             "Wise", "$0/mo", "Always free",
             "N/A", "N/A", "Not a savings account",
             "No Wise ATMs", "✅ Yes (fully online)",
@@ -2255,6 +2264,12 @@ This guide helps you pick the right account for your situation in 2 minutes.
             col_labels[7]: branch,
         })
     st.dataframe(pd.DataFrame(table_rows), hide_index=True, use_container_width=True)
+
+    st.warning(
+        "⚠️ **Revolut and Wise are NOT banks** — deposits are NOT covered by the Australian government's $250,000 Financial Claims Scheme (FCS). Use them for transfers and spending, not as your primary savings account."
+        if lang == "en" else
+        "⚠️ **RevolutとWiseは銀行ではありません** — 預金はオーストラリア政府の預金保証制度（FCS、上限25万ドル）の対象外です。送金・支払い用に使い、メインの貯蓄口座には使用しないでください。"
+    )
 
     st.markdown("---")
 
