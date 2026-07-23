@@ -562,15 +562,92 @@ by employers who don't know your status, which means you're probably owed a refu
                  "オーストラリアの税年度は7月1日〜翌年6月30日。",
         )
     with col_b:
-        is_whm = st.checkbox(
-            "🎒 Working Holiday visa (417 or 462)"
-            if lang == "en" else
-            "🎒 ワーキングホリデービザ（417/462）",
-            help="Working Holiday Makers have a special flat 15% rate on the first $45,000 — "
-                 "regardless of how many days they spent in Australia."
-                 if lang == "en" else
-                 "ワーキングホリデーは最初の$45,000に一律15%の特別レート — 滞在日数に関わらず。",
+        visa_opts_en = [
+            "🎓 Student visa (subclass 500)",
+            "🏆 Graduate visa (subclass 485)",
+            "🎒 Working Holiday (subclass 417)",
+            "🎒 Work and Holiday (subclass 462)",
+            "🔧 Temporary Skill Shortage (subclass 482)",
+            "🌏 Other temporary visa",
+        ]
+        visa_opts_ja = [
+            "🎓 学生ビザ（サブクラス500）",
+            "🏆 卒業生ビザ（サブクラス485）",
+            "🎒 ワーキングホリデー（サブクラス417）",
+            "🎒 ワーキングホリデー（サブクラス462）",
+            "🔧 一時技能不足ビザ（サブクラス482）",
+            "🌏 その他の一時ビザ",
+        ]
+        visa_opts  = visa_opts_ja if lang == "ja" else visa_opts_en
+        visa_sel   = st.selectbox(
+            "Your visa type" if lang == "en" else "ビザの種類",
+            visa_opts,
         )
+        is_whm = "417" in visa_sel or "462" in visa_sel
+
+    # work rights mini-card per visa ──────────────────────────────────────────
+    WORK_RIGHTS = {
+        "500": (
+            "🎓 Student visa (500)",
+            "学生ビザ（500）",
+            "48 hrs/fortnight during semester · Unlimited during official holiday periods · Super entitlements apply from day 1",
+            "学期中48時間/2週間 · 公式休暇期間は無制限 · スーパーは初日から権利あり",
+            "card-blue",
+        ),
+        "485": (
+            "🏆 Graduate visa (485)",
+            "卒業生ビザ（485）",
+            "Full work rights · No hour limits · Super entitlements apply · Valid 2–5 years post-graduation",
+            "フルの就労権 · 時間制限なし · スーパー権利あり · 卒業後2〜5年有効",
+            "card-green",
+        ),
+        "417": (
+            "🎒 Working Holiday (417)",
+            "ワーキングホリデー（417）",
+            "Unlimited hours · Max 6 months with one employer · Special 15% tax rate · Super entitlements apply",
+            "時間無制限 · 1雇用主最大6ヶ月 · 特別15%税率 · スーパー権利あり",
+            "card-yellow",
+        ),
+        "462": (
+            "🎒 Work and Holiday (462)",
+            "ワーキングホリデー（462）",
+            "Unlimited hours · Max 6 months with one employer · Special 15% tax rate · Super entitlements apply",
+            "時間無制限 · 1雇用主最大6ヶ月 · 特別15%税率 · スーパー権利あり",
+            "card-yellow",
+        ),
+        "482": (
+            "🔧 TSS visa (482)",
+            "一時技能不足ビザ（482）",
+            "Work only for sponsoring employer · Hours set by contract · Super entitlements apply · Taxed as resident if 183+ days",
+            "スポンサー雇用主のみ就労可 · 契約による時間 · スーパー権利あり · 183日以上で居住者課税",
+            "card-blue",
+        ),
+        "other": (
+            "🌏 Other temporary visa",
+            "その他の一時ビザ",
+            "Work rights depend on your specific visa conditions — check immi.homeaffairs.gov.au",
+            "就労権はビザの条件によります — immi.homeaffairs.gov.auで確認",
+            "card-yellow",
+        ),
+    }
+    vkey = (
+        "417" if "417" in visa_sel else
+        "462" if "462" in visa_sel else
+        "485" if "485" in visa_sel else
+        "482" if "482" in visa_sel else
+        "500" if "500" in visa_sel else
+        "other"
+    )
+    vt = WORK_RIGHTS[vkey]
+    v_title = vt[1] if lang == "ja" else vt[0]
+    v_desc  = vt[3] if lang == "ja" else vt[2]
+    st.markdown(
+        f"<div class='card {vt[4]}' style='padding:10px 16px;margin:8px 0'>"
+        f"<b style='color:#e6edf3'>{v_title}</b><br>"
+        f"<span style='color:#8b949e;font-size:12px'>{v_desc}</span>"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
 
     fy_start, fy_end = FY_RANGES[fy]
 
