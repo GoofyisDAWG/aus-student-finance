@@ -277,7 +277,7 @@ Free, bilingual EN/JA, no sign-up needed.
          "銀行口座ガイド",
          "Which Australian bank account is best when you first arrive?",
          "到着直後に最適なオーストラリアの銀行口座は？",
-         False, c1),
+         True, c1),
         ("📋", "Work Rights",
          "就労権利",
          "Know your rights — hours, pay rates, entitlements by visa type.",
@@ -2093,6 +2093,353 @@ This loading compensates for no paid leave, no sick leave, no notice period.
            "⚠️ このページの就労権情報は2025年時点のオーストラリア法に基づいています。"
            "具体的な条件はビザ許可通知と適用されるModern Awardによって異なります。"
            "複雑な状況ではFair Workまたは移民エージェントにお問い合わせください。")
+        + "</div>",
+        unsafe_allow_html=True,
+    )
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  BANK ACCOUNT GUIDE
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "🏦 Bank Account Guide":
+
+    st.markdown("## 🏦 " + ("Bank Account Guide — Brisbane" if lang == "en" else "銀行口座ガイド — ブリスベン"))
+    st.caption(
+        "🔜 More cities coming: Sydney, Melbourne, Perth, Gold Coast, Adelaide"
+        if lang == "en" else
+        "🔜 近日追加予定：シドニー・メルボルン・パース・ゴールドコースト・アデレード"
+    )
+
+    if lang == "en":
+        st.markdown("""
+Most international students just walk into the nearest CommBank because it looks familiar.
+That's fine — but it might cost you **$48/year in fees** and a **lower savings rate**.
+This guide helps you pick the right account for your situation in 2 minutes.
+""")
+    else:
+        st.markdown("""
+多くの留学生はなんとなく近くのCommBankに入ります。
+悪くはないですが、**年間$48の手数料**と**低い利息**を払い続けることになるかもしれません。
+このガイドで2分であなたに合った口座を見つけましょう。
+""")
+
+    st.markdown("---")
+
+    # ── quick recommender ─────────────────────────────────────────────────────
+    st.markdown("### " + ("🎯 Quick recommender" if lang == "en" else "🎯 クイックレコメンド"))
+
+    goal_opts_en = [
+        "🛬 I just arrived — I need an account NOW",
+        "💰 I want the highest savings interest rate",
+        "🚶 I move around a lot (WHM / backpacker)",
+        "📱 I prefer everything digital, no branch visits",
+        "🆓 I want zero monthly fees, full stop",
+    ]
+    goal_opts_ja = [
+        "🛬 到着したばかり — 今すぐ口座が必要",
+        "💰 最高の貯蓄金利が欲しい",
+        "🚶 よく移動する（WHM・バックパッカー）",
+        "📱 デジタル完結が好き、支店不要",
+        "🆓 月額手数料ゼロが絶対条件",
+    ]
+    goal_opts = goal_opts_ja if lang == "ja" else goal_opts_en
+    goal_sel  = st.selectbox(
+        "What matters most to you?" if lang == "en" else "あなたにとって何が一番大切ですか？",
+        goal_opts,
+    )
+
+    RECOMMENDATIONS = {
+        0: ("CommBank", "🟢", "Largest branch + ATM network in Brisbane. Can open before you arrive online. Bring passport + visa to any branch.", "ブリスベン最大の支店・ATMネットワーク。渡航前にオンラインで開設可能。パスポート＋ビザで即日開設。"),
+        1: ("ING Savings Maximiser", "🟡", "Best savings rate (~5.5% p.a. with conditions) but requires an existing AU bank account first. Open CommBank/NAB first, then add ING.", "最高の貯蓄金利（条件付き年約5.5%）ですが既存のAU口座が必要。まずCommBank/NABを開設し、後でING追加。"),
+        2: ("NAB", "🟢", "No monthly fee on Classic Banking account. Widespread ATMs. Easy to open on arrival. Good for people moving between cities.", "Classic Bankingは月額手数料ゼロ。ATM広範囲。到着時に即開設可能。都市間移動する人に最適。"),
+        3: ("Up Bank", "🟢", "100% digital, great app, competitive savings rate. No branches — everything via app. Need AU phone number to sign up.", "100%デジタル、優れたアプリ、競争力ある金利。支店なし。AU電話番号が必要。"),
+        4: ("NAB", "🟢", "NAB Classic Banking has zero monthly fees with no conditions attached. No minimum deposit, no transaction requirements.", "NAB Classic Bankingは条件なしで月額手数料ゼロ。最低入金額なし・取引条件なし。"),
+    }
+    goal_idx = goal_opts.index(goal_sel)
+    rec_bank, rec_colour, rec_en, rec_ja = RECOMMENDATIONS[goal_idx]
+    rec_text = rec_ja if lang == "ja" else rec_en
+    st.markdown(
+        f"<div class='card card-green' style='padding:16px 20px'>"
+        f"<div class='label-sm'>{'Recommended for you' if lang == 'en' else 'あなたへのおすすめ'}</div>"
+        f"<b style='font-size:20px;color:#e6edf3'>{rec_colour} {rec_bank}</b><br>"
+        f"<span style='color:#8b949e;font-size:13px'>{rec_text}</span>"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("---")
+
+    # ── full comparison table ─────────────────────────────────────────────────
+    st.markdown("### " + ("📊 Full comparison — Brisbane 2025–26" if lang == "en" else "📊 全銀行比較 — ブリスベン 2025–26"))
+    st.caption(
+        "⚠️ Interest rates change frequently — always check the bank's website before opening. Rates shown are approximate as of mid-2026."
+        if lang == "en" else
+        "⚠️ 金利は頻繁に変わります — 開設前に必ず銀行のウェブサイトで確認してください。金利は2026年中頃の概算です。"
+    )
+
+    # BANK DATA
+    # (name, monthly_fee, fee_waiver, savings_base, savings_bonus, savings_condition, atm, new_arrival, branch_brisbane, digital, notes_en, notes_ja)
+    BANKS = [
+        (
+            "CommBank", "$4/mo", "Waived: deposit $2,000/mo OR under 30",
+            "0.01%", "~4.75%", "Deposit $200+/mo, no withdrawals",
+            "Largest network in AU", "✅ Yes (open online before arrival)",
+            "CBD, South Bank, Toowong, Carindale, Chermside, Garden City, Indooroopilly",
+            "Good app", "Most branches, most ATMs, easiest for new arrivals",
+            "支店最多・ATM最多・新着留学生に最も使いやすい",
+        ),
+        (
+            "NAB", "$0/mo", "No conditions — always free",
+            "0.01%", "~5.00%", "Deposit $200+/mo, grow balance",
+            "Large network", "✅ Yes",
+            "CBD, Fortitude Valley, Toowong, Chermside, Garden City",
+            "Good app", "Best fee-free everyday account. No monthly fee ever.",
+            "手数料永久無料の日常口座として最適。",
+        ),
+        (
+            "ANZ", "$6/mo", "Waived: deposit $2,000/mo OR under 25",
+            "0.01%", "~4.40%", "Deposit $10+/mo",
+            "Large network", "✅ Yes",
+            "CBD, South Bank, Toowong, Carindale, Chermside",
+            "Good app", "Large branch network but lower savings rate vs competitors.",
+            "大型支店網だが貯蓄金利は競合より低め。",
+        ),
+        (
+            "Westpac", "$5/mo", "Waived: deposit $2,000/mo OR under 30",
+            "0.01%", "~5.00%", "Grow balance each month, no withdrawals",
+            "Large network", "✅ Yes",
+            "CBD, Fortitude Valley, Mt Gravatt, Indooroopilly",
+            "Good app", "Competitive savings rate but strict no-withdrawal condition.",
+            "競争力ある金利だが「引き出し禁止」条件が厳しい。",
+        ),
+        (
+            "ING", "$0/mo", "Always free",
+            "0.55%", "~5.50%", "Deposit $1,000+/mo + 5 card transactions",
+            "No ING ATMs — rebates up to 5 fee-free ATM withdrawals/mo", "❌ Need existing AU account first",
+            "No branches anywhere (100% digital)",
+            "Excellent app", "Best savings rate in AU. Cannot be your FIRST account — need CommBank/NAB first.",
+            "AU最高の貯蓄金利。最初の口座にはできません — まずCommBank/NABが必要。",
+        ),
+        (
+            "Up Bank", "$0/mo", "Always free",
+            "0%", "~4.77%", "Save any amount each month",
+            "No Up ATMs — use any Westpac ATM free", "✅ Yes (fully online)",
+            "No branches (100% digital)",
+            "Best app in AU", "Excellent budgeting app. No branches. Requires AU phone number.",
+            "AU最高のバジェットアプリ。支店なし。AU電話番号が必要。",
+        ),
+        (
+            "Wise", "$0/mo", "Always free",
+            "N/A", "N/A", "Not a savings account",
+            "No Wise ATMs", "✅ Yes (fully online)",
+            "No branches",
+            "Excellent app", "Not a bank — use for international transfers only, not as primary account.",
+            "銀行ではありません — 海外送金専用。メイン口座には不向き。",
+        ),
+    ]
+
+    col_labels_en = ["Bank", "Monthly fee", "Fee waiver", "Savings rate (bonus)", "Condition for bonus rate", "ATMs", "New arrivals", "Brisbane branches"]
+    col_labels_ja = ["銀行", "月額手数料", "免除条件", "貯蓄金利（ボーナス）", "ボーナス金利の条件", "ATM", "新着留学生", "ブリスベン支店"]
+    col_labels = col_labels_ja if lang == "ja" else col_labels_en
+
+    table_rows = []
+    for b in BANKS:
+        name, fee, waiver, base, bonus, cond, atm, arrival, branch, app, note_en, note_ja = b
+        table_rows.append({
+            col_labels[0]: name,
+            col_labels[1]: fee,
+            col_labels[2]: waiver,
+            col_labels[3]: f"{bonus} p.a.",
+            col_labels[4]: cond,
+            col_labels[5]: atm,
+            col_labels[6]: arrival,
+            col_labels[7]: branch,
+        })
+    st.dataframe(pd.DataFrame(table_rows), hide_index=True, use_container_width=True)
+
+    st.markdown("---")
+
+    # ── savings rate explainer ────────────────────────────────────────────────
+    st.markdown("### " + ("💡 How bonus savings rates work" if lang == "en" else "💡 ボーナス金利の仕組み"))
+
+    if lang == "en":
+        st.markdown("""
+Every savings account in Australia has **two rates:**
+
+- **Base rate** — what you get if you do nothing (usually 0.01–0.55%)
+- **Bonus rate** — what you get if you meet the monthly conditions (4–5.5%)
+
+**The bonus rate conditions typically include:**
+- Deposit a minimum amount each month ($200–$1,000 depending on the bank)
+- Make a minimum number of purchases on your linked everyday account (some banks)
+- Don't withdraw from your savings account during the month (some banks — this one is strict)
+- Grow your balance by at least $1 compared to the start of the month (some banks)
+
+**If you miss any condition** — you get the base rate for that month only. Next month you can qualify again.
+
+**Practical tip:** Set up an automatic transfer on payday — move a fixed amount to savings the moment your wage lands. That way you never forget the deposit condition.
+""")
+    else:
+        st.markdown("""
+オーストラリアのすべての貯蓄口座には**2つの金利**があります：
+
+- **ベースレート** — 何もしなくても適用される金利（通常0.01〜0.55%）
+- **ボーナスレート** — 月次条件を満たした場合に適用される金利（4〜5.5%）
+
+**ボーナスレートの典型的な条件：**
+- 毎月一定額以上を入金（銀行によって$200〜$1,000）
+- 連携する普通口座で最低取引回数を達成（一部の銀行）
+- その月中に貯蓄口座から引き出さない（一部の銀行 — これは厳しい）
+- 月初より残高を増やす（一部の銀行）
+
+**条件を1つでも満たせなかった場合** — その月はベースレートのみ。翌月また条件を達成できれば回復。
+
+**実践的なヒント：** 給料日に自動振込を設定して、入金直後に固定額を貯蓄口座へ移動しましょう。入金条件を忘れません。
+""")
+
+    # ── savings calculator ────────────────────────────────────────────────────
+    st.markdown("### " + ("🧮 Savings interest calculator" if lang == "en" else "🧮 利息計算機"))
+
+    sc1, sc2, sc3 = st.columns(3)
+    with sc1:
+        savings_bal = st.number_input(
+            "Savings balance (AUD)" if lang == "en" else "貯蓄残高（AUD）",
+            min_value=0, max_value=200000, value=5000, step=500,
+        )
+    with sc2:
+        interest_rate = st.number_input(
+            "Interest rate (% p.a.)" if lang == "en" else "金利（年率 %）",
+            min_value=0.0, max_value=10.0, value=5.0, step=0.05, format="%.2f",
+        )
+    with sc3:
+        months = st.slider(
+            "Months" if lang == "en" else "月数",
+            min_value=1, max_value=24, value=12,
+        )
+
+    interest_earned = savings_bal * (interest_rate / 100) * (months / 12)
+    monthly_interest = interest_earned / months if months > 0 else 0
+
+    si1, si2 = st.columns(2)
+    si1.markdown(
+        f"<div class='card card-green' style='padding:14px 18px'>"
+        f"<div class='label-sm'>{'Interest earned over ' + str(months) + ' months' if lang == 'en' else str(months) + 'ヶ月間の利息'}</div>"
+        f"<div style='font-size:28px;font-weight:800;color:#3fb950'>A${interest_earned:,.2f}</div>"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
+    si2.markdown(
+        f"<div class='card card-blue' style='padding:14px 18px'>"
+        f"<div class='label-sm'>{'Monthly interest' if lang == 'en' else '月間利息'}</div>"
+        f"<div style='font-size:28px;font-weight:800;color:#58a6ff'>A${monthly_interest:,.2f}</div>"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("---")
+
+    # ── brisbane branches ─────────────────────────────────────────────────────
+    st.markdown("### " + ("📍 Brisbane — branches by area" if lang == "en" else "📍 ブリスベン — エリア別支店"))
+    st.caption(
+        "🔜 More cities coming: Sydney · Melbourne · Perth · Gold Coast · Adelaide"
+        if lang == "en" else
+        "🔜 近日追加：シドニー・メルボルン・パース・ゴールドコースト・アデレード"
+    )
+
+    BRISBANE_AREAS = {
+        "🏙️ CBD / City" if lang == "en" else "🏙️ CBD・シティ": {
+            "desc_en": "All major banks have branches here. Best option if you're arriving and need to open an account on day one.",
+            "desc_ja": "すべての主要銀行が支店を持つ。到着初日に口座を開設する場合の最適場所。",
+            "banks": ["CommBank ✅", "NAB ✅", "ANZ ✅", "Westpac ✅", "ING ❌ (digital only)", "Up ❌ (digital only)"],
+        },
+        "🎨 South Bank / West End" if lang == "en" else "🎨 サウスバンク・ウエストエンド": {
+            "desc_en": "Popular student and backpacker area. CommBank and ANZ nearby. West End has many international students.",
+            "desc_ja": "留学生・バックパッカーに人気のエリア。CommBankとANZが近い。ウエストエンドは留学生が多い。",
+            "banks": ["CommBank ✅", "ANZ ✅", "NAB (CBD — 10min by bus)"],
+        },
+        "🎓 St Lucia / Toowong (UQ area)" if lang == "en" else "🎓 セントルシア・トゥーウォン（UQエリア）": {
+            "desc_en": "University of Queensland campus area. CommBank, NAB, ANZ all have Toowong branches. UQ campus also has CommBank ATMs.",
+            "desc_ja": "クイーンズランド大学エリア。CommBank・NAB・ANZがトゥーウォンに支店。UQキャンパス内にもCommBank ATMあり。",
+            "banks": ["CommBank ✅ (Toowong Village)", "NAB ✅ (Toowong)", "ANZ ✅ (Toowong)"],
+        },
+        "🏫 Kelvin Grove (QUT area)" if lang == "en" else "🏫 ケルビングローブ（QUTエリア）": {
+            "desc_en": "QUT Kelvin Grove campus. Limited branches in immediate area — CBD is a short bus ride away.",
+            "desc_ja": "QUTケルビングローブキャンパス。近隣の支店は限られる — バスでCBDへ。",
+            "banks": ["CommBank ATM on campus", "Full branches in CBD (15min)"],
+        },
+        "🛒 Chermside / North Brisbane" if lang == "en" else "🛒 チャームサイド・ノースブリスベン": {
+            "desc_en": "Chermside Shopping Centre has all major banks. Popular residential area for students.",
+            "desc_ja": "チャームサイドショッピングセンターに主要銀行すべてあり。学生に人気の住宅エリア。",
+            "banks": ["CommBank ✅", "NAB ✅", "ANZ ✅", "Westpac ✅"],
+        },
+        "🛍️ Garden City / Mt Gravatt (South Brisbane)" if lang == "en" else "🛍️ ガーデンシティ・マウントグラバット（サウスブリスベン）": {
+            "desc_en": "Garden City Shopping Centre has CommBank, NAB, ANZ. Popular area for Griffith University students.",
+            "desc_ja": "ガーデンシティに CommBank・NAB・ANZあり。グリフィス大学の学生に人気のエリア。",
+            "banks": ["CommBank ✅", "NAB ✅", "ANZ ✅", "Westpac ✅"],
+        },
+        "🏬 Indooroopilly (West Brisbane)" if lang == "en" else "🏬 インドゥーロピリー（ウエストブリスベン）": {
+            "desc_en": "Indooroopilly Shopping Centre has CommBank, ANZ, Westpac. Good area for UQ students living west of CBD.",
+            "desc_ja": "インドゥーロピリーショッピングセンターにCommBank・ANZ・Westpacあり。CBD西側に住むUQ学生向け。",
+            "banks": ["CommBank ✅", "ANZ ✅", "Westpac ✅"],
+        },
+    }
+
+    for area, data in BRISBANE_AREAS.items():
+        desc = data["desc_ja"] if lang == "ja" else data["desc_en"]
+        banks_str = " · ".join(data["banks"])
+        st.markdown(
+            f"<div class='card card-blue' style='padding:12px 16px;margin:6px 0'>"
+            f"<b style='color:#e6edf3'>{area}</b><br>"
+            f"<span style='color:#8b949e;font-size:12px'>{desc}</span><br>"
+            f"<span style='font-size:12px;color:#c9d1d9;margin-top:4px;display:block'>{banks_str}</span>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("---")
+
+    # ── how to open ───────────────────────────────────────────────────────────
+    st.markdown("### " + ("✅ How to open an account" if lang == "en" else "✅ 口座の開設方法"))
+
+    open_steps_en = [
+        ("1️⃣", "What you need",
+         "Passport + visa (usually enough for 100-point ID check). Some banks also ask for: Australian address, phone number, email. You do NOT need a TFN to open — but give it later to avoid extra tax on interest."),
+        ("2️⃣", "Before you arrive (optional but recommended)",
+         "CommBank and NAB let you apply online before arriving in Australia. You verify your identity at a branch within 6 weeks of arrival. This means your account number is ready when you start work."),
+        ("3️⃣", "Walk into any branch",
+         "Say: 'I'd like to open a bank account. I'm an international student / working holiday maker.' They'll guide you through everything. Takes about 20 minutes."),
+        ("4️⃣", "Open a savings account at the same time",
+         "Always open a linked savings account on the same day. Don't leave your money sitting in an everyday account earning 0.01% — move most of it to savings immediately."),
+        ("5️⃣", "Give your BSB + account number to your employer",
+         "You need this before your first pay. BSB is a 6-digit branch code, account number is 6–10 digits. Both are shown in your banking app immediately after opening."),
+    ]
+    open_steps_ja = [
+        ("1️⃣", "必要なもの",
+         "パスポート＋ビザ（通常100ポイントID確認に十分）。一部の銀行ではAU住所・電話番号・メールアドレスも必要。TFNは開設時不要ですが、後で提供しないと利息に追加課税されます。"),
+        ("2️⃣", "渡航前に（任意ですが推奨）",
+         "CommBankとNABはオーストラリア到着前にオンラインで申請可能。到着から6週間以内に支店で本人確認。就職時に口座番号がすぐ使えるようになります。"),
+        ("3️⃣", "支店に行く",
+         "「銀行口座を開設したいです。留学生（またはワーキングホリデー）です。」と伝えるだけ。約20分で完了します。"),
+        ("4️⃣", "同時に貯蓄口座も開設する",
+         "必ず同日に連携する貯蓄口座も開設してください。普通口座に0.01%のまま置かないで — すぐに大半を貯蓄口座へ移しましょう。"),
+        ("5️⃣", "BSB＋口座番号を雇用主に伝える",
+         "初回給与前に必要です。BSBは6桁の支店コード、口座番号は6〜10桁。開設直後にアプリで確認できます。"),
+    ]
+    open_steps = open_steps_ja if lang == "ja" else open_steps_en
+    for icon, title, desc in open_steps:
+        st.markdown(
+            f"<div class='step-box'><b>{icon} {title}</b><br>"
+            f"<span style='color:#8b949e;font-size:13px'>{desc}</span></div>",
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("")
+    st.markdown(
+        "<div class='warn-box'>"
+        + ("⚠️ Interest rates change with the RBA cash rate. Always check the bank's website for current rates before opening. "
+           "Rates on this page are approximate as of mid-2026 and may be higher or lower now."
+           if lang == "en" else
+           "⚠️ 金利はRBAキャッシュレートとともに変動します。開設前に必ず銀行のウェブサイトで現在の金利を確認してください。"
+           "このページの金利は2026年中頃の概算で、現在は異なる場合があります。")
         + "</div>",
         unsafe_allow_html=True,
     )
