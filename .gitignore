@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+
+# Streamlit secrets (never commit — add to Streamlit Cloud dashboard instead)
+.streamlit/secrets.toml
+
+# macOS
+.DS_Store
