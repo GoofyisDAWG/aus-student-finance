@@ -531,11 +531,11 @@ residents (15%), but it is still far better than leaving the money behind.
     st.markdown(
         "<div class='card card-blue'>"
         + ("🔗 <b>Official ATO DASP portal:</b> "
-           "<a href='https://www.ato.gov.au/individuals-and-families/super-for-individuals-and-families/super/withdrawing-and-using-your-super/departing-australia-superannuation-payment-dasp' target='_blank'>"
+           "<a href='https://www.ato.gov.au/dasp' target='_blank'>"
            "ato.gov.au — Departing Australia Superannuation Payment</a>"
            if lang == "en" else
            "🔗 <b>ATO DASPポータル（公式）：</b> "
-           "<a href='https://www.ato.gov.au/individuals-and-families/super-for-individuals-and-families/super/withdrawing-and-using-your-super/departing-australia-superannuation-payment-dasp' target='_blank'>"
+           "<a href='https://www.ato.gov.au/dasp' target='_blank'>"
            "ato.gov.au — 離国時スーパーアニュエーション支払い</a>")
         + "</div>",
         unsafe_allow_html=True,
@@ -1265,11 +1265,11 @@ Example for a resident earning $40,000:
     st.markdown(
         "<div class='card card-blue'>"
         + ("🔗 <b>Lodge your tax return free:</b> "
-           "<a href='https://www.ato.gov.au/individuals-and-families/lodging-your-tax-return/lodge-your-tax-return-online-with-mytax' target='_blank'>"
+           "<a href='https://my.gov.au' target='_blank'>"
            "ato.gov.au — myTax online lodgment</a>"
            if lang == "en" else
            "🔗 <b>無料で確定申告：</b> "
-           "<a href='https://www.ato.gov.au/individuals-and-families/lodging-your-tax-return/lodge-your-tax-return-online-with-mytax' target='_blank'>"
+           "<a href='https://my.gov.au' target='_blank'>"
            "ato.gov.au — myTaxオンライン申告</a>")
         + "</div>",
         unsafe_allow_html=True,
