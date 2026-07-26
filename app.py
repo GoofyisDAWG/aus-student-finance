@@ -52,7 +52,7 @@ body, [data-testid="stAppViewContainer"] { background: #0d1117; }
 }
 .warn-box {
     background: #2d1a00; border: 1px solid #d29922; border-radius: 8px;
-    padding: 12px 16px; font-size: 13px; color: #d29922; margin: 10px 0;
+    padding: 12px 16px; font-size: 13px; color: #f0c060; margin: 10px 0;
 }
 .hero-title { font-size: 32px; font-weight: 800; color: #e6edf3; margin: 0; }
 .hero-sub   { font-size: 16px; color: #8b949e; margin-top: 6px; }
@@ -531,11 +531,11 @@ residents (15%), but it is still far better than leaving the money behind.
     st.markdown(
         "<div class='card card-blue'>"
         + ("🔗 <b>Official ATO DASP portal:</b> "
-           "<a href='https://www.ato.gov.au/individuals-and-families/super-for-individuals-and-families/super/growing-and-keeping-track-of-your-super/keeping-track-of-your-super/departing-australia-superannuation-payment' target='_blank'>"
+           "<a href='https://www.ato.gov.au/individuals-and-families/super-for-individuals-and-families/super/withdrawing-and-using-your-super/departing-australia-superannuation-payment-dasp' target='_blank'>"
            "ato.gov.au — Departing Australia Superannuation Payment</a>"
            if lang == "en" else
            "🔗 <b>ATO DASPポータル（公式）：</b> "
-           "<a href='https://www.ato.gov.au/individuals-and-families/super-for-individuals-and-families/super/growing-and-keeping-track-of-your-super/keeping-track-of-your-super/departing-australia-superannuation-payment' target='_blank'>"
+           "<a href='https://www.ato.gov.au/individuals-and-families/super-for-individuals-and-families/super/withdrawing-and-using-your-super/departing-australia-superannuation-payment-dasp' target='_blank'>"
            "ato.gov.au — 離国時スーパーアニュエーション支払い</a>")
         + "</div>",
         unsafe_allow_html=True,
@@ -1520,11 +1520,11 @@ Wiseは中間市場レートを使用し、小さな透明な手数料（約0.5%
         f"font-weight:700;font-size:15px;text-decoration:none;display:inline-block'>"
         + ("Open a free Wise account →" if lang == "en" else "無料でWiseアカウントを開設 →")
         + f"</a>"
-        f"<span style='color:#8b949e;font-size:11px;margin-left:16px'>"
-        + ("Referral link — we may earn a small fee if you sign up, at no cost to you."
+        f"<div style='color:#c9d1d9;font-size:12px;margin-top:12px'>"
+        + ("🔗 Referral link — you pay nothing extra. We may earn a small fee if you sign up."
            if lang == "en" else
-           "紹介リンク — ご登録いただいた場合、あなたの負担なしで少額の報酬を受け取る場合があります。")
-        + f"</span></div>",
+           "🔗 紹介リンク — あなたの負担は一切ありません。登録いただいた場合に少額の報酬を受け取る場合があります。")
+        + f"</div></div>",
         unsafe_allow_html=True,
     )
 
