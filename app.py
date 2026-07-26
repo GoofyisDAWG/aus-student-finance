@@ -1502,7 +1502,7 @@ Wiseは中間市場レートを使用し、小さな透明な手数料（約0.5%
         f"<div style='font-size:20px;font-weight:700;color:#e6edf3;margin-bottom:8px'>"
         f"{'🌿 Wise — Send money the smart way' if lang == 'en' else '🌿 Wise — かしこく送金する'}"
         f"</div>"
-        f"<div style='color:#8b949e;font-size:14px;margin-bottom:16px'>"
+        f"<div style='color:#e6edf3;font-size:14px;margin-bottom:16px'>"
         + ("✅ Mid-market exchange rate (same as Google)<br>"
            "✅ Transparent fee shown upfront before you send<br>"
            "✅ Usually 0.4–0.6% for AUD → JPY<br>"
