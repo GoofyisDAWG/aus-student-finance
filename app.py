@@ -249,6 +249,59 @@ Free, bilingual EN/JA, no sign-up needed.
 
     st.markdown("")
 
+    # ── first week checklist ──────────────────────────────────────────────────
+    with st.expander("📋 " + ("First week in Australia — what to do immediately" if lang == "en" else "オーストラリア到着後1週間でやること"), expanded=False):
+        if lang == "en":
+            st.markdown("""
+Most people don't know these steps exist until they've already missed them — and it costs them money.
+
+**Do these in order, within your first 7 days:**
+
+**1️⃣ Apply for a Tax File Number (TFN)**
+Apply online at ato.gov.au. Takes 5 minutes. Arrives by post in ~28 days.
+⚠️ Without a TFN, your employer MUST withhold tax at **47%** — the top rate. You'll get it back at tax time, but it's locked away for months.
+
+**2️⃣ Create a myGov account and link the ATO**
+Go to my.gov.au → Create account → Link ATO service.
+This gives you access to your tax history, super funds, and lets you lodge tax returns.
+
+**3️⃣ Open an Australian bank account**
+You need a BSB + account number before your first pay. Open in-branch on day one — bring passport and visa.
+See the Bank Account Guide on this site for the best options.
+
+**4️⃣ Give your TFN and bank details to your employer**
+As soon as you have them — don't wait. This affects how much tax is withheld from every pay.
+
+**5️⃣ Find your super fund**
+When you start work, your employer will ask which super fund. If you don't have one, they'll assign you one. Log in to myGov → ATO → Super to see all your funds.
+""")
+        else:
+            st.markdown("""
+これらのステップを知らないまま見逃す人が多く、結果的にお金を損しています。
+
+**この順番で、到着から7日以内に実行してください：**
+
+**1️⃣ 税務番号（TFN）を申請する**
+ato.gov.auでオンライン申請。5分で完了。郵便で約28日後に届きます。
+⚠️ TFNがないと、雇用主は**47%**（最高税率）で源泉徴収しなければなりません。確定申告で返ってきますが、それまでお金が数ヶ月間凍結されます。
+
+**2️⃣ myGovアカウントを作成し、ATOを連携する**
+my.gov.auへアクセス → アカウント作成 → ATOサービスを連携。
+税務履歴・スーパーファンドの確認・確定申告の提出ができるようになります。
+
+**3️⃣ オーストラリアの銀行口座を開設する**
+初回給与前にBSB＋口座番号が必要です。到着初日に支店でパスポートとビザを持参して開設。
+最適な口座は本サイトの「銀行口座ガイド」で確認してください。
+
+**4️⃣ TFNと口座情報を雇用主に提出する**
+取得したらすぐに提出。毎回の給与から差し引かれる税額に直接影響します。
+
+**5️⃣ スーパーファンドを確認する**
+就職時に雇用主からどのスーパーファンドを使うか聞かれます。指定がなければ割り当てられます。myGov → ATO → Superで全ファンドを確認できます。
+""")
+
+    st.markdown("")
+
     # ── tools grid ────────────────────────────────────────────────────────────
     st.markdown("### " + ("All tools" if lang == "en" else "全ツール"))
     c1, c2 = st.columns(2)
@@ -453,6 +506,24 @@ but it's still thousands of dollars most people walk away from.
         unsafe_allow_html=True,
     )
 
+    # ── WHM-specific warning ──────────────────────────────────────────────────
+    if is_whm_global:
+        st.markdown(
+            "<div class='warn-box'>"
+            + ("⚠️ <b>Working Holiday Makers: watch out for illegal super practices.</b><br>"
+               "Some employers tell WHMs 'super is included in your hourly rate' — "
+               "<b>this is illegal in Australia.</b> Super must be paid on top of your wages as a separate payment. "
+               "If your employer says this, ask them to correct it or report to Fair Work: fairwork.gov.au"
+               if lang == "en" else
+               "⚠️ <b>ワーキングホリデーの方へ：違法なスーパー慣行に注意してください。</b><br>"
+               "「スーパーは時給に含まれている」と言う雇用主がいますが、<b>これはオーストラリアでは違法です。</b>"
+               "スーパーは給与とは別に支払われなければなりません。"
+               "このようなことを言われた場合は訂正を求めるか、Fair Workに通報してください：fairwork.gov.au")
+            + "</div>",
+            unsafe_allow_html=True,
+        )
+        st.markdown("")
+
     st.markdown("---")
 
     # ── sgc rate note ─────────────────────────────────────────────────────────
@@ -547,6 +618,39 @@ DASP税はオーストラリアを永久に離れた後にスーパーを請求�
     )
 
     st.markdown("")
+
+    # ── lost / multiple super funds ───────────────────────────────────────────
+    with st.expander("🔍 " + ("Do you have super in multiple funds? (very common)" if lang == "en" else "スーパーが複数のファンドに分散していませんか？（よくあります）")):
+        if lang == "en":
+            st.markdown("""
+If you worked more than one job in Australia, you likely have super in **multiple funds** — possibly 2, 3, or more. Each fund charges fees, so uncombined super shrinks faster.
+
+**How to find ALL your super (including lost super):**
+1. Log in to **myGov** (my.gov.au)
+2. Click **ATO** → select **Super**
+3. The ATO shows every fund linked to your Tax File Number — including ones you forgot about
+4. The ATO also shows **lost super** (super from old jobs where they couldn't contact you)
+
+**Before you claim DASP:** always check myGov first to make sure you've found every fund. You can only claim DASP once per fund after you leave Australia — so don't miss one.
+
+**ATO lost super search:** ato.gov.au → search "lost super"
+""")
+        else:
+            st.markdown("""
+オーストラリアで複数の仕事をした場合、スーパーが**複数のファンド**（2つ、3つ、あるいはそれ以上）に分散している可能性が高いです。各ファンドが手数料を請求するため、統合していないと残高が減り続けます。
+
+**すべてのスーパー（未請求分を含む）を確認する方法：**
+1. **myGov**（my.gov.au）にログイン
+2. **ATO** → **Super** を選択
+3. ATOは税務番号（TFN）に紐づくすべてのファンドを表示 — 忘れていたものも含む
+4. ATOは**迷子のスーパー**（連絡が取れなくなった旧職場からのもの）も表示
+
+**DASP請求の前に：** 必ずmyGovですべてのファンドを確認してください。離国後はファンドごとに1回しかDASPを申請できないため、見落とさないようにしましょう。
+
+**ATO迷子スーパー検索：** ato.gov.au → 「lost super」で検索
+""")
+
+    st.markdown("")
     st.markdown(
         "<div class='warn-box'>"
         + ("⚠️ This calculator gives an estimate only. Your actual super balance depends on your "
@@ -608,6 +712,51 @@ by employers who don't know your status, which means you're probably owed a refu
 場合が多いため、還付を受けられる可能性が高いです。
 
 **オーストラリアの税年度：** 7月1日 → 翌年6月30日（暦年ではない）
+""")
+
+    # ── TFN guide ─────────────────────────────────────────────────────────────
+    with st.expander("🪪 " + ("Don't have a Tax File Number (TFN) yet? Apply now — it affects every pay" if lang == "en" else "税務番号（TFN）をまだ持っていない方へ — 毎回の給与に影響します")):
+        if lang == "en":
+            st.markdown("""
+**A Tax File Number (TFN) is your personal tax ID in Australia. You need it for everything.**
+
+Without a TFN:
+- Your employer must withhold tax at **47%** (the top rate) on every payslip
+- You cannot lodge a tax return to claim it back until the end of the financial year
+- You cannot link your super fund to your ATO account
+
+**How to apply — takes 5 minutes:**
+1. Go to **ato.gov.au** → search "apply for TFN" → select "Foreign passport holders, permanent migrants or temporary visitors"
+2. Fill in your details online — you'll need your passport and visa grant number
+3. Your TFN arrives by **post in ~28 days** — make sure you have an Australian address ready
+4. Give your TFN to **every employer** as soon as you receive it
+
+**Already have a TFN but forgot it?**
+Log in to myGov → ATO → Personal details. Your TFN is shown there.
+You can also find it on any previous tax return, group certificate, or ATO letter.
+
+⚠️ Never share your TFN publicly or by email — treat it like a password.
+""")
+        else:
+            st.markdown("""
+**税務番号（TFN）はオーストラリアにおけるあなたの個人税務IDです。あらゆる場面で必要です。**
+
+TFNがないと：
+- 雇用主は毎回の給与から**47%**（最高税率）を源泉徴収しなければならない
+- 年度末まで確定申告で取り戻せない
+- スーパーファンドをATOアカウントに連携できない
+
+**申請方法 — 5分で完了：**
+1. **ato.gov.au** にアクセス → "apply for TFN" を検索 → "Foreign passport holders, permanent migrants or temporary visitors" を選択
+2. オンラインで情報を入力 — パスポートとビザ許可番号が必要
+3. TFNは**郵便で約28日後**に届きます — オーストラリアの住所を事前に準備してください
+4. 受け取ったらすぐに**すべての雇用主**にTFNを伝える
+
+**TFNを持っているが忘れた場合：**
+myGov → ATO → 個人情報で確認できます。
+過去の確定申告書・グループ証明書・ATOからの手紙にも記載されています。
+
+⚠️ TFNを公開したりメールで送らないでください — パスワードと同様に扱ってください。
 """)
 
     st.markdown("---")
