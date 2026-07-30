@@ -386,7 +386,8 @@ but it's still thousands of dollars most people walk away from.
     ) / total_income if total_income > 0 else SGC_RATES.get(start_year, 0.12)
 
     super_gross   = total_income * weighted_sgc
-    dasp_tax      = super_gross * 0.35
+    dasp_rate     = 0.65 if is_whm_global else 0.35
+    dasp_tax      = super_gross * dasp_rate
     super_net     = super_gross - dasp_tax
 
     already_found = st.slider(
@@ -405,8 +406,9 @@ but it's still thousands of dollars most people walk away from.
     st.markdown("### " + ("Your Result" if lang == "en" else "計算結果"))
 
     display_gross = already_found if already_found > 0 else super_gross
-    display_tax   = display_gross * 0.35
+    display_tax   = display_gross * dasp_rate
     display_net   = display_gross - display_tax
+    dasp_pct_label = f"{int(dasp_rate * 100)}%"
 
     r1, r2, r3 = st.columns(3)
     r1.markdown(
@@ -419,7 +421,7 @@ but it's still thousands of dollars most people walk away from.
     )
     r2.markdown(
         f"<div class='card card-red'>"
-        f"<div class='label-sm'>{'DASP tax (35%)' if lang == 'en' else 'DASP税（35%）'}</div>"
+        f"<div class='label-sm'>{'DASP tax (' + dasp_pct_label + ')' if lang == 'en' else 'DASP税（' + dasp_pct_label + '）'}</div>"
         f"<div class='big-number' style='color:#f85149'>−${display_tax:,.0f}</div>"
         f"<div style='color:#8b949e;font-size:12px'>{'withheld by ATO' if lang == 'en' else 'ATOが源泉徴収'}</div>"
         f"</div>",
@@ -429,7 +431,7 @@ but it's still thousands of dollars most people walk away from.
         f"<div class='card card-green'>"
         f"<div class='label-sm'>{'You receive' if lang == 'en' else 'あなたが受け取る金額'}</div>"
         f"<div class='big-number'>${display_net:,.0f}</div>"
-        f"<div style='color:#8b949e;font-size:12px'>{'after 35% DASP tax' if lang == 'en' else '35% DASP税引き後'}</div>"
+        f"<div style='color:#8b949e;font-size:12px'>{'after ' + dasp_pct_label + ' DASP tax' if lang == 'en' else dasp_pct_label + ' DASP税引き後'}</div>"
         f"</div>",
         unsafe_allow_html=True,
     )
@@ -467,17 +469,20 @@ The Super Guarantee rate is set by the Australian government and has been increa
 toward 12% by 2025. Your employer is required to pay this percentage of your gross wages
 into a super fund on your behalf, on top of your regular pay.
 
-The 35% DASP tax applies to the taxable component when international students claim their
-super after permanently departing Australia. It is higher than the tax paid by Australian
-residents (15%), but it is still far better than leaving the money behind.
+The DASP tax applies when you claim super after permanently departing Australia.
+**Working Holiday Makers (417/462): 65% DASP tax** — the higher rate applies because of the Working Holiday Maker Tax Reform (2017).
+**All other visa types: 35% DASP tax.**
+Both are higher than the 15% paid by Australian residents, but still far better than leaving the money behind.
 """)
         else:
             st.markdown("""
 スーパーギャランティー率はオーストラリア政府が設定しており、2025年に向けて12%まで段階的に引き上げられています。
 雇用主は通常の給与に加えて、この割合をスーパーファンドに積み立てる義務があります。
 
-35%のDASP税は、留学生がオーストラリアを永久に離れた後にスーパーを請求する際の課税成分に適用されます。
-オーストラリア居住者（15%）より高い税率ですが、お金を置いていくよりはるかに得です。
+DASP税はオーストラリアを永久に離れた後にスーパーを請求する際に適用されます。
+**ワーキングホリデー（417/462）：DASP税65%** — 2017年のワーキングホリデーメーカー税制改正により高い税率が適用されます。
+**その他のビザ：DASP税35%。**
+どちらもオーストラリア居住者（15%）より高い税率ですが、お金を置いていくよりはるかに得です。
 """)
 
     # ── how to claim ──────────────────────────────────────────────────────────
